@@ -3,6 +3,7 @@ import express from "express";
 import userController from "../controller/UserController";
 import fileController from "../controller/FileController";
 import categoryController from "../controller/CategoryController";
+import tagController from "../controller/TagController";
 import middleware from "../middleware";
 
 const router = express.Router();
@@ -26,6 +27,13 @@ router.route("/addCategory").post(middleware.checkUserAuth,categoryController.ad
 router.route("/getAllCategory").get(middleware.checkUserAuth,categoryController.getAllCategory);
 router.route("/updateCategory/:id").put(middleware.checkUserAuth,categoryController.updateCategory);
 router.route("/getCategory/:id").get(middleware.checkUserAuth,categoryController.getCategory);
+
+
+//tags API
+router.route("/addUpdateTags").post(middleware.checkUserAuth,tagController.addUpdateTags);
+router.route("/getAllTags").get(middleware.checkUserAuth,tagController.getAllTags);
+router.route("/getTags/:id").get(middleware.checkUserAuth,tagController.getTag);
+
 
 
 export default router;
