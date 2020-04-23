@@ -60,7 +60,7 @@ user.register = async (req,res) => {
       res.status(200).json(helpers.response("200", "error", "Validation Error!"));
     }
   }catch (e) {
-    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+    res.status(400).json(helpers.response("400", "error", "Something went wrong.",e.message));
   }
 
 
@@ -115,7 +115,7 @@ user.login = async (req,res) => {
 
   }
   catch (e) {
-    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+    res.status(400).json(helpers.response("400", "error", "Something went wrong.",e.message));
   }
 
 };

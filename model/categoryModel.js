@@ -34,13 +34,13 @@ exports.createCategory = async (context,dataset) => {
 
 
 };
-exports.updateCategory = async (context,id) => {
+exports.updateCategory = async (context,id,dataset) => {
   try {
+    dataset.USED_IN = JSON.stringify(dataset.USED_IN );
+    dataset.UPDATED_AT = new Date();
     await knex('c_category').where({
       ID: id
-    }).update({
-      IS_DELETED: '1',
-      UPDATED_AT: new Date()});
+    }).update(dataset);
     return 'success'
   }
   catch (e) {

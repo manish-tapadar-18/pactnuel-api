@@ -24,7 +24,7 @@ router.route("/uploadFile").post(middleware.checkUserAuth,fileController.uploadF
 //category API
 router.route("/addCategory").post(middleware.checkUserAuth,categoryController.addCategory);
 router.route("/getAllCategory").get(middleware.checkUserAuth,categoryController.getAllCategory);
-router.route("/updateCatgory").put(middleware.checkUserAuth,categoryController.updateCategory);
+router.route("/updateCategory/:id").put(middleware.checkUserAuth,categoryController.updateCategory);
 router.route("/getCategory/:id").get(middleware.checkUserAuth,categoryController.getCategory);
 
 

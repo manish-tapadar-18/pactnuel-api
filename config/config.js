@@ -1,6 +1,7 @@
 import {config} from "dotenv";
 
 import knex0 from "knex";
+import debug from  "debug";
 
 import connectionKnex from "./../knexfile";
 
@@ -32,6 +33,6 @@ export const mongoDB = async () => {
         console.log(e);
     }
 };
-
 export const knex = knex0(connectionKnex[process.env.NODE_ENV || "development"]);
+
 

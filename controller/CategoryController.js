@@ -80,18 +80,18 @@ category.updateCategory = async (req,res) => {
       res.end();
       return;
     }
-    let getDetials = await complaintModel.getDetail(req.params.id);
-    if(getDetials.OPEN_BY == null && getDetials.FEEDBACK_BY == null){
-      let status = await complaintModel.deleteComplaint(req,req.params.id);
+    let getDetials = await categoryModel.getDetail(req.params.id);
+    if(getDetials != null){
+      let status = await categoryModel.updateCategory(req,req.params.id,req.body);
       if(status != null){
-        res.status(200).json(helpers.response("200", "success", "Delete Successful"));
+        res.status(200).json(helpers.response("200", "success", "Updated Successfully!"));
       }
       else{
         res.status(200).json(helpers.response("200", "error", "Delete is not possible!"));
       }
     }
     else{
-      res.status(200).json(helpers.response("200", "error", "Delete is not possible! Its viewed by our representative!"));
+      res.status(200).json(helpers.response("200", "error", "Category doesn't exists!"));
     }
 
   }

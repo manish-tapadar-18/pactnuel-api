@@ -1,6 +1,5 @@
 // Update with your config settings.
 import {config} from "dotenv";
-
 config();
 export default {
 
@@ -12,10 +11,21 @@ export default {
       password : process.env.DB_PASSWORD,
       database : process.env.DB_DATABASE
     },
-    migrations: {
-      tableName: "knex_migrations"
-    }
-  },
+    debug:process.env.DEBUG,
+    log: {
+      warn(message) {
+        console.log(message);
+      },
+      error(message) {
+        console.log(message)
+      },
+      deprecate(message) {
+        console.log(message)
+      },
+      debug(message) {
+        console.log(message)
+      },
+    }},
 
   staging: {
     client: process.env.DEV_DB_CONNECTION,
