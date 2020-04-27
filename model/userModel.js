@@ -1,3 +1,4 @@
+import userModel from "./userModel";
 const uniqid = require('uniqid');
 import {knex} from "../config/config";
 
@@ -20,12 +21,19 @@ exports.createUser = async (context,dataset) => {
   // Save User
   const trx =  await knex.transaction();
   try {
+    dataset.ALIAS = await userModel.generateAlias(dataset.EMAIL);
     await trx('c_user').insert([{
       ID: dataset.ID,
       EMAIL:dataset.EMAIL,
       ROLE:dataset.ROLE,
-      NAME:dataset.NAME,
       PASSWORD:dataset.PASSWORD,
+      NAME:dataset.NAME,
+      LAST_NAME:dataset.LAST_NAME,
+      SOURCE:dataset.SOURCE,
+      REGISTRATION_TYPE:dataset.REGISTRATION_TYPE,
+      GOOGLE_ID:dataset.GOOGLE_ID,
+      FACEBOOK_ID:dataset.FACEBOOK_ID,
+      ALIAS:dataset.ALIAS,
     }]);
     trx.commit();
     return dataset.ID;
@@ -39,3 +47,22 @@ exports.createUser = async (context,dataset) => {
 };
 
 
+exports.generateAlias = async (email,id=0) => {
+  try{
+    let aliasArray = email.split('@');
+    let alias = aliasArray[0];
+    let result = await knex.select('c_user.ALIAS')
+      .from('c_user')
+      .whereNot('ID',id)
+      .where({'ALIAS':alias});
+    if (result.length != 0) {
+      alias = alias + '-'+(result.length)
+    }
+
+    return alias;
+  }catch (e) {
+    return e;
+  }
+
+
+};

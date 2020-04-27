@@ -15,19 +15,29 @@ user.register = async (req,res) => {
     let payload = req.body;
     let email = typeof (payload.EMAIL) === "string" && payload.EMAIL.trim().length > 0 ? payload.EMAIL : false;
     let password = typeof (payload.PASSWORD) === "string" && payload.PASSWORD.trim().length > 0? payload.PASSWORD : false;
-    let name = typeof (payload.NAME) === "string" && payload.NAME.trim().length > 0? payload.NAME : false;
+    let firstName = typeof (payload.FIRST_NAME) === "string" && payload.FIRST_NAME.trim().length > 0? payload.FIRST_NAME : false;
+    let lastName = typeof (payload.LAST_NAME) === "string" && payload.LAST_NAME.trim().length > 0? payload.LAST_NAME : false;
+    let source = typeof (payload.SOURCE) === "string" && payload.SOURCE.trim().length > 0? payload.SOURCE : '';
+    let loginType = typeof (payload.REGISTRATION_TYPE) === "string" && payload.REGISTRATION_TYPE.trim().length > 0? payload.REGISTRATION_TYPE : 'EMAIL';
+    let facebookId = typeof (payload.GOOGLE_ID) === "string" && payload.GOOGLE_ID.trim().length > 0? payload.GOOGLE_ID : '';
+    let googleId = typeof (payload.FACEBOOK_ID) === "string" && payload.FACEBOOK_ID.trim().length > 0? payload.FACEBOOK_ID : '';
     let role = typeof (payload.ROLE) === "object" && payload.ROLE.ROLES.length > 0? payload.ROLE : false;
 
-    if(email && password && role && name){
+    if(email && password && role && firstName && lastName && loginType){
       let userDetails = await userModel.getDetail(email);
       if(userDetails == null){
         let userId = uniqid();
         let dataSet = {
           ID:userId,
-          NAME:name,
+          NAME:firstName,
+          LAST_NAME:lastName,
           ROLE:JSON.stringify(role),
           EMAIL:email,
-          PASSWORD:md5(password)
+          PASSWORD:md5(password),
+          SOURCE:source,
+          REGISTRATION_TYPE:loginType,
+          GOOGLE_ID:googleId,
+          FACEBOOK_ID:facebookId
         };
         //create user
         let createdUser = await userModel.createUser(req,dataSet);
