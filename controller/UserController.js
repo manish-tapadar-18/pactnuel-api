@@ -18,10 +18,10 @@ user.register = async (req,res) => {
     let firstName = typeof (payload.FIRST_NAME) === "string" && payload.FIRST_NAME.trim().length > 0? payload.FIRST_NAME : false;
     let lastName = typeof (payload.LAST_NAME) === "string" && payload.LAST_NAME.trim().length > 0? payload.LAST_NAME : false;
     let source = typeof (payload.SOURCE) === "string" && payload.SOURCE.trim().length > 0? payload.SOURCE : '';
-    let mobile = typeof (payload.MOBILE) === "string" && payload.MOBILE.trim().length > 0? payload.MOBILE : '';
+    let mobile = typeof (payload.MOBILE) === "string" && payload.MOBILE.trim().length > 0? payload.MOBILE : null;
     let loginType = typeof (payload.REGISTRATION_TYPE) === "string" && payload.REGISTRATION_TYPE.trim().length > 0? payload.REGISTRATION_TYPE : 'EMAIL';
-    let facebookId = typeof (payload.GOOGLE_ID) === "string" && payload.GOOGLE_ID.trim().length > 0? payload.GOOGLE_ID : '';
-    let googleId = typeof (payload.FACEBOOK_ID) === "string" && payload.FACEBOOK_ID.trim().length > 0? payload.FACEBOOK_ID : '';
+    let facebookId = typeof (payload.GOOGLE_ID) === "string" && payload.GOOGLE_ID.trim().length > 0? payload.GOOGLE_ID : null;
+    let googleId = typeof (payload.FACEBOOK_ID) === "string" && payload.FACEBOOK_ID.trim().length > 0? payload.FACEBOOK_ID : null;
     let role = typeof (payload.ROLE) === "object" && payload.ROLE.ROLES.length > 0? payload.ROLE : false;
 
     if(email && password && role && firstName && lastName && loginType){
