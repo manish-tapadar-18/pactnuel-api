@@ -30,6 +30,7 @@ exports.createUser = async (context,dataset) => {
       NAME:dataset.NAME,
       LAST_NAME:dataset.LAST_NAME,
       SOURCE:dataset.SOURCE,
+      MOBILE:dataset.MOBILE,
       REGISTRATION_TYPE:dataset.REGISTRATION_TYPE,
       GOOGLE_ID:dataset.GOOGLE_ID,
       FACEBOOK_ID:dataset.FACEBOOK_ID,
