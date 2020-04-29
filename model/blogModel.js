@@ -3,6 +3,8 @@ import userModel from "./userModel";
 const uniqid = require('uniqid');
 import {knex} from "../config/config";
 import blogModel from './blogModel';
+const _ = require('lodash');
+
 
 //get BLOG wise data
 exports.getDetail = async (alias) => {
@@ -72,19 +74,80 @@ exports.createBlog = async (context,dataset) => {
 };
 
 exports.updateBlog = async (context,id,dataset) => {
+
+  const trx =  await knex.transaction();
   try {
-    dataset.USED_IN = JSON.stringify(dataset.USED_IN );
-    dataset.ALIAS = await blogModel.generateAlias(dataset.NAME,id);
-    dataset.UPDATED_AT = new Date();
+    dataset.ALIAS = await blogModel.generateAlias(dataset.TITLE,id);
     await knex('c_blog').where({
       ID: id
-    }).update(dataset);
-    return 'success'
+    }).update({
+      TITLE:dataset.TITLE,
+      DESCRIPTION:dataset.DESCRIPTION,
+      FEATURE_MEDIA:dataset.FEATURE_MEDIA,
+      PUBLICATION:dataset.PUBLICATION,
+      AUTHOR_BY:dataset.AUTHOR_BY,
+      CONTENT:dataset.CONTENT,
+      STATUS:dataset.STATUS,
+      ALIAS:dataset.ALIAS,
+      UPDATED_AT:new Date()
+    });
+    //get previous blog categories
+    let currentCategories = dataset.CATEGORIES;
+
+    //category update
+    let previousCategories = await knex.select('c_blog_category.*').from('c_blog_category')
+      .where({ "c_blog_category.BLOG_ID": id});
+    for(let i=0; i< previousCategories.length; i++){
+      let checkExists = currentCategories.indexOf(previousCategories[i].CATEGORY_ID);
+      if(checkExists == -1){
+        await trx('c_blog_category').where({
+          ID: previousCategories[i].ID
+        }).delete();
+      }
+      else{
+        currentCategories.splice(checkExists,1)
+      }
+    }
+    for(let p = 0; p < currentCategories.length; p++){
+      await trx('c_blog_category').insert([{
+        ID: uniqid(),
+        BLOG_ID:id,
+        CATEGORY_ID:currentCategories[p],
+      }]);
+    }
+
+    //tags update
+    let currentTags = dataset.TAGS;
+
+    let previousTags = await knex.select('c_blog_tag.*').from('c_blog_tag')
+      .where({ "c_blog_tag.BLOG_ID": id});
+    for(let i=0; i< previousTags.length; i++){
+      let checkExists = currentTags.indexOf(previousTags[i].TAG_ID);
+      if(checkExists == -1){
+        await trx('c_blog_tag').where({
+          ID: previousTags[i].ID
+        }).delete();
+      }
+      else{
+        currentTags.splice(checkExists,1)
+      }
+    }
+    for(let p = 0; p < currentTags.length; p++){
+      await trx('c_blog_tag').insert([{
+        ID: uniqid(),
+        BLOG_ID:id,
+        TAG_ID:currentTags[p],
+      }]);
+    }
+
+    trx.commit();
+    return id;
   }
   catch (e) {
-    console.log(e.message)
+    trx.rollback();
     throw e;
   }
+
 };
 
 exports.getAll = async (req, skip, take, filters) => {
