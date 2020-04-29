@@ -4,6 +4,7 @@ import userController from "../controller/UserController";
 import fileController from "../controller/FileController";
 import categoryController from "../controller/CategoryController";
 import tagController from "../controller/TagController";
+import blogController from "../controller/BlogController";
 import middleware from "../middleware";
 
 const router = express.Router();
@@ -34,6 +35,10 @@ router.route("/addUpdateTags").post(middleware.checkUserAuth,tagController.addUp
 router.route("/getAllTags").get(middleware.checkUserAuth,tagController.getAllTags);
 router.route("/getTags/:id").get(middleware.checkUserAuth,tagController.getTag);
 
-
+//category API
+router.route("/addBlog").post(middleware.checkUserAuth,blogController.addBlog);
+router.route("/getAllBlog").post(middleware.checkUserAuth,blogController.getAllBlog);
+router.route("/updateBlog/:id").put(middleware.checkUserAuth,blogController.updateBlog);
+router.route("/getBlog/:alias").get(middleware.checkUserAuth,blogController.getBlog);
 
 export default router;

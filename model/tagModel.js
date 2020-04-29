@@ -49,9 +49,6 @@ exports.getAll = async (req) => {
     let result = await knex.select('c_tags.*')
       .from('c_tags')
       .where({});
-    if (result.length == 0) {
-      return null;
-    }
 
     return result;
   }catch (e) {

@@ -18,7 +18,6 @@ exports.getDetail = async (id) => {
     return e.message;
   }
 
-
 };
 
 exports.createCategory = async (context,dataset) => {
@@ -58,9 +57,6 @@ exports.getAll = async (req) => {
       .from('c_category')
       .innerJoin('c_file as i1','i1.ID','c_category.IMAGE_ID')
       .where({});
-    if (result.length == 0) {
-      return null;
-    }
 
     return result;
   }catch (e) {
@@ -72,7 +68,7 @@ exports.getAll = async (req) => {
 
 exports.generateAlias = async (name,id=0) => {
   try{
-    let alias = name.replace(/[^\w\s]/gi, '-');
+    let alias = name.replace(/[^A-Z0-9]+/ig, '-');
     let result = await knex.select('c_category.ALIAS')
       .from('c_category')
       .whereNot('ID',id)
