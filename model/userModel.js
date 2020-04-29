@@ -69,7 +69,7 @@ exports.generateAlias = async (email,id=0) => {
     let result = await knex.select('c_user.ALIAS')
       .from('c_user')
       .whereNot('ID',id)
-      .where({'ALIAS':alias});
+      .where('ALIAS','LIKE','%'+alias+'%');
     if (result.length != 0) {
       alias = alias + '-'+(result.length)
     }
