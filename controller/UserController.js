@@ -17,7 +17,7 @@ user.register = async (req,res) => {
     let password = typeof (payload.PASSWORD) === "string" && payload.PASSWORD.trim().length > 0? payload.PASSWORD : false;
     let firstName = typeof (payload.FIRST_NAME) === "string" && payload.FIRST_NAME.trim().length > 0? payload.FIRST_NAME : false;
     let lastName = typeof (payload.LAST_NAME) === "string" && payload.LAST_NAME.trim().length > 0? payload.LAST_NAME : false;
-    let source = typeof (payload.SOURCE) === "string" && payload.SOURCE.trim().length > 0? payload.SOURCE : '';
+    let source = typeof (payload.SOURCE) === "string" && payload.SOURCE.trim().length > 0? payload.SOURCE : null;
     let mobile = typeof (payload.MOBILE) === "string" && payload.MOBILE.trim().length > 0? payload.MOBILE : null;
     let loginType = typeof (payload.REGISTRATION_TYPE) === "string" && payload.REGISTRATION_TYPE.trim().length > 0? payload.REGISTRATION_TYPE : 'EMAIL';
     let facebookId = typeof (payload.GOOGLE_ID) === "string" && payload.GOOGLE_ID.trim().length > 0? payload.GOOGLE_ID : null;
@@ -26,7 +26,12 @@ user.register = async (req,res) => {
 
     if(email && password && role && firstName && lastName && loginType){
       let userDetails = await userModel.getDetail(email);
-      if(userDetails == null){
+      let userDetailsMobile = null;
+      if(mobile != null){
+        userDetailsMobile = await userModel.getDetailFromMobile(mobile);
+      }
+
+      if(userDetails == null && userDetailsMobile == null){
         let userId = uniqid();
         let dataSet = {
           ID:userId,
@@ -64,7 +69,7 @@ user.register = async (req,res) => {
         }
       }
       else{
-        res.status(200).json(helpers.response("200", "error", "You are already registered with us, Please login!"));
+        res.status(200).json(helpers.response("200", "error", "Your mobile/email is already registered with us, Please login!"));
       }
 
     }
