@@ -96,10 +96,16 @@ user.login = async (req,res) => {
           if(userDetails.PASSWORD.toUpperCase() == (md5(password)).toUpperCase()){
             let rowsData = {};
             rowsData.ID = userDetails.ID;
-            rowsData.EMAIL = userDetails.MOBILE;
+            rowsData.EMAIL = userDetails.EMAIL;
             rowsData.NAME = userDetails.NAME;
             rowsData.COUNTRY_CODE = userDetails.COUNTRY_CODE;
+            rowsData.LAST_NAME = userDetails.LAST_NAME;
+            rowsData.MOBILE = userDetails.MOBILE;
+            rowsData.REGISTRATION_TYPE = userDetails.REGISTRATION_TYPE;
+            rowsData.GOOGLE_ID = userDetails.GOOGLE_ID;
             rowsData.ROLE = userDetails.ROLE;
+            rowsData.FACEBOOK_ID = userDetails.FACEBOOK_ID;
+
             rowsData.EXP = Math.floor(Date.now() / 1000) + (60 * 60 * 2 * 100);
             jwt.sign(rowsData, helpers.hash(process.env.APP_SUPER_SECRET_KEY), function (err, token) {
               if (!err && token) {
