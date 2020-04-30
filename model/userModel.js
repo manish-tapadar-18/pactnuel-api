@@ -1,6 +1,7 @@
 import userModel from "./userModel";
 const uniqid = require('uniqid');
 import {knex} from "../config/config";
+import categoryModel from "./categoryModel";
 
 //get UserID wise data
 exports.getDetail = async (email) => {
@@ -49,6 +50,7 @@ exports.createUser = async (context,dataset) => {
       GOOGLE_ID:dataset.GOOGLE_ID,
       FACEBOOK_ID:dataset.FACEBOOK_ID,
       ALIAS:dataset.ALIAS,
+      REMEMBER_TOKEN:dataset.REMEMBER_TOKEN
     }]);
     trx.commit();
     return dataset.ID;
@@ -80,4 +82,56 @@ exports.generateAlias = async (email,id=0) => {
   }
 
 
+};
+
+
+exports.accountActivation = async (email) => {
+  try {
+    let dataset = {};
+    dataset.EMAIL_VERIFY = 1;
+    dataset.UPDATED_AT = new Date();
+    await knex('c_user').where({
+      EMAIL: email
+    }).update(dataset);
+
+    return 'success'
+  }
+  catch (e) {
+    console.log(e.message)
+    throw e;
+  }
+};
+
+exports.updateToken = async (email,token) => {
+  try {
+    let dataset = {};
+    dataset.REMEMBER_TOKEN = token;
+    dataset.UPDATED_AT = new Date();
+    await knex('c_user').where({
+      EMAIL: email
+    }).update(dataset);
+
+    return 'success'
+  }
+  catch (e) {
+    console.log(e.message)
+    throw e;
+  }
+};
+
+exports.updatePassword = async (email,password) => {
+  try {
+    let dataset = {};
+    dataset.PASSWORD = password;
+    dataset.UPDATED_AT = new Date();
+    await knex('c_user').where({
+      EMAIL: email
+    }).update(dataset);
+
+    return 'success'
+  }
+  catch (e) {
+    console.log(e.message);
+    throw e;
+  }
 };

@@ -2,6 +2,11 @@
 
 import crypto from "crypto";
 
+import nodemailer from "nodemailer";
+
+import ejs from "ejs";
+
+
 import jwt from "jsonwebtoken";
 
 import {config} from "dotenv";
@@ -152,6 +157,45 @@ helpers.promiseResponse = (status,data="") =>{
   }
   response.data = data;
   return response;
+};
+helpers.sendEmail = async function (tomailID, mailSubject, templateName, dataSet, attachments=[]) {
+
+   const transporter = nodemailer.createTransport(
+      {
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
+        secure: false,
+        auth: {
+          user: process.env.MAIL_USERNAME, // generated ethereal user
+          pass: process.env.MAIL_PASSWORD // generated ethereal password
+        }
+      });
+
+  let emailData = {};
+  emailData.data = dataSet;
+  ejs.renderFile(`templates/emails/${templateName}.ejs`,emailData, function (err, data) {
+    if (!err) {
+      const mailOptions = {
+        from: process.env.MAIL_SENDER,
+        to: `${tomailID}`,
+        subject: `${mailSubject}`,
+        html: data
+      };
+      if(attachments.length > 0){
+        mailOptions.attachments = attachments;
+      }
+      transporter.sendMail(mailOptions, function (error) {
+        if (error) {
+          throw new Error(error);
+        }else{
+          return 'Email sent'
+        }
+      });
+    } else {
+      throw new Error(err);
+    }
+
+  });
 };
 
 //export default helpers;

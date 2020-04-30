@@ -33,6 +33,7 @@ user.register = async (req,res) => {
 
       if(userDetails == null && userDetailsMobile == null){
         let userId = uniqid();
+        let token = uniqid();
         let dataSet = {
           ID:userId,
           NAME:firstName,
@@ -44,28 +45,18 @@ user.register = async (req,res) => {
           SOURCE:source,
           REGISTRATION_TYPE:loginType,
           GOOGLE_ID:googleId,
-          FACEBOOK_ID:facebookId
+          FACEBOOK_ID:facebookId,
+          REMEMBER_TOKEN:token
         };
         //create user
         let createdUser = await userModel.createUser(req,dataSet);
         if(createdUser != null){
-          delete dataSet.PASSWORD;
-          dataSet.EXP = Math.floor(Date.now() / 1000) + (60 * 60 * 2 * 100);
-          jwt.sign(dataSet, helpers.hash(process.env.APP_SUPER_SECRET_KEY), function (err, token) {
-            if (!err && token) {
-              dataSet.ACCESS_TOKEN = token;
-              //AUTHENTICATED
-              user.postAuth(dataSet).then((updateData) => {
-                if (updateData.status) {
-                  res.status(200).json(helpers.response("200", "success", "Login Successful", dataSet));
-                } else {
-                  res.status(500).json(helpers.response("500", "error", "Something went wrong", dataSet));
-                }
-              });
-            } else {
-              res.status(500).json(helpers.response("500", "error", "Something went wrong"));
-            }
-          });
+         //send email for verification
+          let data = {"URL":process.env.FRONT_END_URL,"VERIFYLINK":process.env.FRONT_END_URL+'/verify?status=pending&email='+email+'&token='+token}
+          helpers.sendEmail([email],
+            `Welcome to Pactunel!`,
+            'welcome',data);
+          res.status(200).json(helpers.response("200", "success", "Please check Your Mailbox!"));
         }
       }
       else{
@@ -81,7 +72,7 @@ user.register = async (req,res) => {
   }
 
 
-}
+};
 
 //frontend user login
 user.login = async (req,res) => {
@@ -92,8 +83,12 @@ user.login = async (req,res) => {
     if(email && password){
       //check mobile and otp is correct or not
         let userDetails = await userModel.getDetail(email);
+
         if(userDetails != null){
-          if(userDetails.PASSWORD.toUpperCase() == (md5(password)).toUpperCase()){
+          if(userDetails.EMAIL_VERIFY == 0){
+            res.status(200).json(helpers.response("200", "error", "Your Email is not verified."));
+          }
+          else if(userDetails.PASSWORD.toUpperCase() == (md5(password)).toUpperCase()){
             let rowsData = {};
             rowsData.ID = userDetails.ID;
             rowsData.EMAIL = userDetails.EMAIL;
@@ -168,6 +163,129 @@ user.getDetails = async (req,res) => {
   }
 
 };
+
+user.accountActivation = async (req,res) => {
+  try{
+    let payload = req.body;
+    let email = typeof (payload.EMAIL) === "string" && payload.EMAIL.trim().length > 0 ? payload.EMAIL : false;
+    let token = typeof (payload.TOKEN) === "string" && payload.TOKEN.trim().length > 0? payload.TOKEN : false;
+
+    if(email && token){
+      let userDetails = await userModel.getDetail(email);
+      if(userDetails != null){
+       if(token==userDetails.REMEMBER_TOKEN){
+         //Update User with verify 1
+         let result = await userModel.accountActivation(email);
+         if(result){
+           res.status(200).json(helpers.response("200", "success", "Your account has been verified! Please login now!"));
+         }
+       }
+       else{
+         res.status(200).json(helpers.response("200", "error", "Your token has expired!"));
+       }
+      }
+      else{
+        res.status(200).json(helpers.response("200", "error", "Your Email address doesn't exists."));
+      }
+
+    }
+    else{
+      res.status(200).json(helpers.response("200", "error", "Validation Error!"));
+    }
+  }catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong.",e.message));
+  }
+
+
+};
+
+
+user.forgotPasswordResendActivation = async (req,res) => {
+  try{
+    let payload = req.body;
+    let email = typeof (payload.EMAIL) === "string" && payload.EMAIL.trim().length > 0 ? payload.EMAIL : false;
+    let type = typeof (payload.TYPE) === "string" && (payload.TYPE=='RESEND' || payload.TYPE=='FORGOT') && payload.TYPE.trim().length > 0 ? payload.TYPE : false;
+    if(email && type){
+      //check mobile and otp is correct or not
+      let userDetails = await userModel.getDetail(email);
+      if(userDetails != null){
+        let token = uniqid();
+        let result = await userModel.updateToken(email,token);
+        if(result){
+          let data = {"URL":process.env.FRONT_END_URL,"VERIFYLINK":process.env.FRONT_END_URL+'/forgotpassword?status=pending&email='+email+'&token='+token};
+          if(type == 'FORGOT'){
+            helpers.sendEmail([email],
+              `Forgot Password!`,
+              'forgotpassword',data);
+          }
+          else {
+            helpers.sendEmail([email],
+              `Welcome to Pactunel!`,
+              'welcome',data);
+          }
+
+          res.status(200).json(helpers.response("200", "success", "Please check your Mailbox!"));
+
+        }
+        else {
+          res.status(200).json(helpers.response("200", "error", "Something went wrong!"));
+
+        }
+
+      }
+      else{
+        res.status(200).json(helpers.response("200", "error", "User Not Found!"));
+      }
+    }
+    else{
+      res.status(200).json(helpers.response("200", "error", "Validation Error!"));
+    }
+
+  }
+  catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+  }
+
+};
+
+user.forgotPassword = async (req,res) => {
+  try{
+    let payload = req.body;
+    let password = typeof (payload.PASSWORD) === "string" && payload.PASSWORD.trim().length > 0 ? payload.PASSWORD : false;
+    let email = typeof (payload.EMAIL) === "string" && payload.EMAIL.trim().length > 0 ? payload.EMAIL : false;
+    let token = typeof (payload.TOKEN) === "string" && payload.TOKEN.trim().length > 0? payload.TOKEN : false;
+
+    if(email && token && password){
+      let userDetails = await userModel.getDetail(email);
+      if(userDetails != null){
+        if(token==userDetails.REMEMBER_TOKEN){
+          //change password
+          let result = await userModel.updatePassword(email,md5(password));
+          if(result){
+            res.status(200).json(helpers.response("200", "success", "Your password has been changed successfully! Please login now!"));
+          }
+        }
+        else{
+          res.status(200).json(helpers.response("200", "error", "Your token has expired!"));
+        }
+      }
+      else{
+        res.status(200).json(helpers.response("200", "error", "Your Email address doesn't exists."));
+      }
+
+    }
+    else{
+      res.status(200).json(helpers.response("200", "error", "Validation Error!"));
+    }
+  }catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong.",e.message));
+  }
+
+
+};
+
+
+
 
 //POST AUTH
 /**
