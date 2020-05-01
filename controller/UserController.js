@@ -199,7 +199,6 @@ user.accountActivation = async (req,res) => {
 
 };
 
-
 user.forgotPasswordResendActivation = async (req,res) => {
   try{
     let payload = req.body;
@@ -212,13 +211,15 @@ user.forgotPasswordResendActivation = async (req,res) => {
         let token = uniqid();
         let result = await userModel.updateToken(email,token);
         if(result){
-          let data = {"URL":process.env.FRONT_END_URL,"VERIFYLINK":process.env.FRONT_END_URL+'/forgotpassword?status=pending&email='+email+'&token='+token};
+          let data = '';
           if(type == 'FORGOT'){
+            data = {"URL":process.env.FRONT_END_URL,"VERIFYLINK":process.env.FRONT_END_URL+'/forgotpassword?status=pending&email='+email+'&token='+token};
             helpers.sendEmail([email],
               `Forgot Password!`,
               'forgotpassword',data);
           }
           else {
+            data = {"URL":process.env.FRONT_END_URL,"VERIFYLINK":process.env.FRONT_END_URL+'/verify?status=pending&email='+email+'&token='+token};
             helpers.sendEmail([email],
               `Welcome to Pactunel!`,
               'welcome',data);
