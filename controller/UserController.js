@@ -86,7 +86,7 @@ user.login = async (req,res) => {
 
         if(userDetails != null){
           if(userDetails.EMAIL_VERIFY == 0){
-            res.status(200).json(helpers.response("200", "error", "Your Email is not verified."));
+            res.status(200).json(helpers.response("200", "error", "Your Email is not verified.",{"action":"resendActivationEmail"}));
           }
           else if(userDetails.PASSWORD.toUpperCase() == (md5(password)).toUpperCase()){
             let rowsData = {};
@@ -284,9 +284,6 @@ user.forgotPassword = async (req,res) => {
 
 
 };
-
-
-
 
 //POST AUTH
 /**
