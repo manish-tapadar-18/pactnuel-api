@@ -15,13 +15,13 @@ blog.addBlog  = async (req,res) =>{
     let authorBy = typeof (payload.AUTHOR_BY) === "string" && payload.AUTHOR_BY.trim().length > 0? payload.AUTHOR_BY : false;
     let status = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0? payload.STATUS : false;
     let publication = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0? payload.STATUS : '';
-    let category = payload.CATEGORIES.length > 0 ? payload.CATEGORIES : false;
+    let category = payload.CATEGORIES.length > 0 ? payload.CATEGORIES : [];
     let tags = payload.TAGS.length > 0 ? payload.TAGS : [];
     let content = typeof (payload.CONTENT) === "object"? payload.CONTENT : false;
     let featureMedia = typeof (payload.FEATURE_MEDIA) === "object"? payload.FEATURE_MEDIA : {};
     //check tags are duplicate or not
     // validation
-    if(title && authorBy  && status && category && content) {
+    if(title && authorBy  && status && content) {
       payload.ID = uniqid();
       payload.STATUS = status;
       payload.PUBLICATION = publication;
@@ -105,13 +105,13 @@ blog.updateBlog = async (req,res) => {
       let authorBy = typeof (payload.AUTHOR_BY) === "string" && payload.AUTHOR_BY.trim().length > 0? payload.AUTHOR_BY : false;
       let status = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0? payload.STATUS : false;
       let publication = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0? payload.STATUS : '';
-      let category = payload.CATEGORIES.length > 0 ? payload.CATEGORIES : false;
+      let category = payload.CATEGORIES.length > 0 ? payload.CATEGORIES : [];
       let tags = payload.TAGS.length > 0 ? payload.TAGS : [];
       let content = typeof (payload.CONTENT) === "object"? payload.CONTENT : false;
       let featureMedia = typeof (payload.FEATURE_MEDIA) === "object"? payload.FEATURE_MEDIA : {};
       //check tags are duplicate or not
       // validation
-      if(title && authorBy  && status && category && content) {
+      if(title && authorBy  && status && content) {
         payload.STATUS = status;
         payload.PUBLICATION = publication;
         payload.FEATURE_MEDIA = JSON.stringify(featureMedia);
