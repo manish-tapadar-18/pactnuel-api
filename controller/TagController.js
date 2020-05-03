@@ -55,7 +55,8 @@ tags.getTag = async (req,res) => {
 
 tags.getAllTags = async (req,res) => {
   try {
-    let data = await tagModel.getAll(req);
+    let name = req.query.name ? req.query.name : null;
+    let data = await tagModel.getAll(req,name);
     if (data != null) {
       res.status(200).json(helpers.response("200", "success", "Fetch Successful", data));
     }

@@ -44,11 +44,16 @@ exports.createUpdateTags = async (context,dataset) => {
 
 };
 
-exports.getAll = async (req) => {
+exports.getAll = async (req,name) => {
   try{
-    let result = await knex.select('c_tags.*')
+    let query = knex.select('c_tags.*')
       .from('c_tags')
       .where({});
+    if(name !=null){
+      query.where('c_tags.NAME','LIKE','%'+name+'%');
+    }
+
+    let result = await query;
 
     return result;
   }catch (e) {
