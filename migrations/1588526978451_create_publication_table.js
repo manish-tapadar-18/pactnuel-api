@@ -13,6 +13,7 @@ module.exports = {
       "\tTWITTER_INFO varchar(255) null,\n" +
       "\tINSTAGRAM_INFO varchar(255) null,\n" +
       "\tAUTHOR_BY varchar(20) not null,\n" +
+      "\tSHOW_ON_MENU char(1) not null default 0,\n" +
       "\tVIEWS int(20) default 0 not null,\n" +
       "\tSTATUS enum('ACTIVE', 'INACTIVE', 'ARCHIVE', 'DELETED','DRAFT','PUBLISHED') not null,\n" +
       "\tCREATED_AT timestamp default CURRENT_TIMESTAMP not null,\n" +

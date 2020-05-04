@@ -10,11 +10,11 @@ blog.addBlog  = async (req,res) =>{
   try{
 
     let payload = req.body;
-    let desc = typeof (payload.DESCRIPTION) === "string" && payload.DESCRIPTION.trim().length > 0? payload.DESCRIPTION : '';
+    let desc = typeof (payload.DESCRIPTION) === "string" && payload.DESCRIPTION.trim().length > 0? payload.DESCRIPTION : null;
     let title = typeof (payload.TITLE) === "string" && payload.TITLE.trim().length > 0? payload.TITLE : false;
     let authorBy = typeof (payload.AUTHOR_BY) === "string" && payload.AUTHOR_BY.trim().length > 0? payload.AUTHOR_BY : false;
     let status = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0? payload.STATUS : false;
-    let publication = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0? payload.STATUS : '';
+    let publication = typeof (payload.PUBLICATION) === "string" && payload.PUBLICATION.trim().length > 0? payload.PUBLICATION : null;
     let category = payload.CATEGORIES.length > 0 ? payload.CATEGORIES : [];
     let tags = payload.TAGS.length > 0 ? payload.TAGS : [];
     let content = typeof (payload.CONTENT) === "object"? payload.CONTENT : false;

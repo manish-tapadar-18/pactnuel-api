@@ -5,6 +5,7 @@ import fileController from "../controller/FileController";
 import categoryController from "../controller/CategoryController";
 import tagController from "../controller/TagController";
 import blogController from "../controller/BlogController";
+import publicationController from "../controller/PublicationController";
 import middleware from "../middleware";
 
 const router = express.Router();
@@ -38,10 +39,18 @@ router.route("/addUpdateTags").post(middleware.checkUserAuth,tagController.addUp
 router.route("/getAllTags").get(middleware.checkUserAuth,tagController.getAllTags);
 router.route("/getTags/:id").get(middleware.checkUserAuth,tagController.getTag);
 
-//category API
+//blog API
 router.route("/addBlog").post(middleware.checkUserAuth,blogController.addBlog);
 router.route("/getAllBlog").post(middleware.checkUserAuth,blogController.getAllBlog);
 router.route("/updateBlog/:id").put(middleware.checkUserAuth,blogController.updateBlog);
 router.route("/getBlog/:alias").get(middleware.checkUserAuth,blogController.getBlog);
+
+
+//publication API
+router.route("/addPublication").post(middleware.checkUserAuth,publicationController.addPublication);
+router.route("/getAllPublication").post(middleware.checkUserAuth,publicationController.getAllPublication);
+router.route("/updatePublication/:id").put(middleware.checkUserAuth,publicationController.updatePublication);
+router.route("/getPublication/:alias").get(middleware.checkUserAuth,publicationController.getPublication);
+router.route("/getUsersPublication/:userId").get(middleware.checkUserAuth,publicationController.getUsersPublication);
 
 export default router;
