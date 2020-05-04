@@ -52,5 +52,7 @@ router.route("/getAllPublication").post(middleware.checkUserAuth,publicationCont
 router.route("/updatePublication/:id").put(middleware.checkUserAuth,publicationController.updatePublication);
 router.route("/getPublication/:alias").get(middleware.checkUserAuth,publicationController.getPublication);
 router.route("/getUsersPublication/:userId").get(middleware.checkUserAuth,publicationController.getUsersPublication);
+router.route("/removePublication/:userId/:publicationId").put(middleware.checkUserAuth,publicationController.removePublication);
+router.route("/menuPublication/:publicationId").put(middleware.checkUserAuth,publicationController.menuPublication);
 
 export default router;

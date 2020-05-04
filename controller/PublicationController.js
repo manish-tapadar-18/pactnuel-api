@@ -2,6 +2,8 @@ import helpers from "../helpers";
 import {config} from "dotenv";
 import publicationModel from '../model/publicationModel';
 import uniqid from 'uniqid';
+import categoryModel from "../model/categoryModel";
+import category from "./CategoryController";
 
 config();
 
@@ -174,6 +176,71 @@ publication.updatePublication = async (req,res) => {
     }
 
 };
+
+publication.removePublication = async (req,res) => {
+  try{
+    if (!req.params.userId || !req.params.publicationId) {
+      res.status(400);
+      res.end();
+      return;
+    }
+    let getDetials = await publicationModel.checkPublicationUser(req.params.userId,req.params.publicationId);
+    if(getDetials != null){
+      let status = await publicationModel.removeWriter(req.params.userId,req.params.publicationId);
+      if(status != null){
+        res.status(200).json(helpers.response("200", "success", "Updated Successfully!"));
+      }
+      else{
+        res.status(200).json(helpers.response("200", "error", "Delete is not possible!"));
+      }
+    }
+    else{
+      res.status(200).json(helpers.response("200", "error", "Cant remove Owner/User doesn't exists!"));
+    }
+
+  }
+  catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+  }
+
+};
+
+publication.menuPublication = async (req,res) => {
+  try{
+    if (!req.params.publicationId) {
+      res.status(400);
+      res.end();
+      return;
+    }
+    let getDetials = await publicationModel.getDetailById(req.params.publicationId);
+    if(getDetials != null){
+      if(getDetials.SHOW_ON_MENU == 0){
+        getDetials.SHOW_ON_MENU = 1;
+      }
+      else {
+        getDetials.SHOW_ON_MENU =0;
+      }
+      let status = await publicationModel.menuPublication(req.params.publicationId,getDetials.SHOW_ON_MENU);
+      if(status != null){
+        res.status(200).json(helpers.response("200", "success", "Updated Successfully!"));
+      }
+      else{
+        res.status(200).json(helpers.response("200", "error", "Update is not possible!"));
+      }
+    }
+    else{
+      res.status(200).json(helpers.response("200", "error", "Publication doesn't exists!"));
+    }
+
+  }
+  catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+  }
+
+};
+
+
+
 
 
 

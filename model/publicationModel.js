@@ -32,6 +32,28 @@ exports.getDetail = async (alias) => {
 
 };
 
+exports.getDetailById = async (id) => {
+    try {
+      let query = knex.from('c_publication')
+        .innerJoin('c_user', 'c_publication.AUTHOR_BY', 'c_user.ID')
+        .leftJoin('c_file as AVATAR', 'c_publication.AVATAR', 'AVATAR.ID')
+        .leftJoin('c_file as LOGO', 'c_publication.LOGO', 'LOGO.ID')
+        .where({'c_publication.ID':id}).first();
+
+      let data = {};
+      data = await query.select('c_publication.*','AVATAR.PATH as AVATAR_FILE_PATH',
+        'LOGO.PATH as LOGO_FILE_PATH','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME');
+
+      return data;
+    }
+    catch (e) {
+      return e;
+    }
+
+
+
+};
+
 exports.getUsersPublication = async (userId) => {
   try{
     let data = await knex.from('c_publication_user')
@@ -87,11 +109,10 @@ exports.updatePublication = async (context,id,dataset) => {
     delete dataset.WRITERS;
     //dataset.ALIAS = await publicationModel.generateAlias(dataset.TITLE,id);
     dataset.UPDATED_AT = new Date();
-    let l = trx('c_publication').where({
+    await trx('c_publication').where({
       ID: id
-    }).update(dataset).toString();
+    }).update(dataset);
 
-    //category update
     let previousWriters = await knex.select('c_publication_user.*').from('c_publication_user')
       .where({ "c_publication_user.PUBLICATION_ID": id,"c_publication_user.TYPE":"WRITER"});
     for(let i=0; i< previousWriters.length; i++){
@@ -214,4 +235,55 @@ exports.generateFilters = function (query, filters) {
   }
 
   return query;
+};
+
+exports.checkPublicationUser = async (userId,publicationId) => {
+  try{
+    let result = await knex.select('*')
+      .from('c_publication_user').where({ "USER_ID": userId,"PUBLICATION_ID": publicationId,"TYPE":"WRITER"});
+    if (result.length == 0) {
+      return null;
+    }
+
+    return result[0];
+  }catch (e) {
+    return e.message;
+  }
+
+
+};
+
+exports.removeWriter = async (userId,publicationId) => {
+  try{
+
+    await knex('c_publication_user').where({
+      USER_ID: userId,
+      PUBLICATION_ID: publicationId,
+    }).delete();
+
+    return 'success';
+
+  }catch (e) {
+    return e.message;
+  }
+
+
+};
+
+exports.menuPublication = async (id,status) => {
+  try{
+
+    await knex('c_publication').where({
+      ID: id
+    }).update({
+      SHOW_ON_MENU:status
+    });
+
+    return 'success';
+
+  }catch (e) {
+    return e;
+  }
+
+
 };
