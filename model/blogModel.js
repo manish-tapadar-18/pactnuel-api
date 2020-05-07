@@ -11,7 +11,7 @@ exports.getDetail = async (alias) => {
     try {
       let query = knex.from('c_blog')
         .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
-        .innerJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
+        .leftJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
         .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
         .where({'c_blog.ALIAS':alias});
 
@@ -155,7 +155,7 @@ exports.getAll = async (req, skip, take, filters) => {
     let data = {};
     let query = knex.from('c_blog')
       .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
-      .innerJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
+      .leftJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
       .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
       .where({ });
 
@@ -181,7 +181,7 @@ exports.getCount = async (filters) => {
   try {
     let query = knex.from('c_blog')
       .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
-      .innerJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
+      .leftJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
       .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
       .where({ });
 
