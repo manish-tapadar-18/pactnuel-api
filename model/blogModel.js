@@ -59,7 +59,7 @@ exports.createBlog = async (context,dataset) => {
       await trx('c_blog_tag').insert([{
         ID: uniqid(),
         BLOG_ID:dataset.ID,
-        TAG_ID:dataset.TAGS[j],
+        TAG_ID:dataset.TAGS[j].id,
       }]);
     }
     trx.commit();
@@ -136,7 +136,7 @@ exports.updateBlog = async (context,id,dataset) => {
       await trx('c_blog_tag').insert([{
         ID: uniqid(),
         BLOG_ID:id,
-        TAG_ID:currentTags[p],
+        TAG_ID:currentTags[p].id,
       }]);
     }
 
