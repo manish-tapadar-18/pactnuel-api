@@ -16,10 +16,8 @@ exports.getDetail = async (alias) => {
         .where({'c_blog.ALIAS':alias});
 
       let data = await query.select( 'c_user.*','c_blog.*',
-        knex.raw("(select GROUP_CONCAT(ct.NAME) from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAG_NAME"),
-        knex.raw("(select GROUP_CONCAT(ct.ID) from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAG_IDS"),
-        knex.raw("(select GROUP_CONCAT(ct.NAME) from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORY_NAME"),
-        knex.raw("(select GROUP_CONCAT(ct.ID) from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORY_IDS"));
+        knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
+        knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
 
       return data[0];
     }
@@ -163,10 +161,9 @@ exports.getAll = async (req, skip, take, filters) => {
       query = blogModel.generateFilters(query, filters);
     }
     data.DATA = await query.offset(skip).limit(take).distinct( 'c_user.*','c_blog.*',
-      knex.raw("(select GROUP_CONCAT(ct.NAME) from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAG_NAME"),
-      knex.raw("(select GROUP_CONCAT(ct.ID) from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAG_IDS"),
-      knex.raw("(select GROUP_CONCAT(ct.NAME) from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORY_NAME"),
-      knex.raw("(select GROUP_CONCAT(ct.ID) from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORY_IDS"));
+      knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
+      knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
+
     let totalCount = await blogModel.getCount(filters);
     data.TOTAL = totalCount[0].COUNT;
     return data;
