@@ -15,7 +15,7 @@ exports.getDetail = async (alias) => {
         .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
         .where({'c_blog.ALIAS':alias});
 
-      let data = await query.select( 'c_user.*','c_blog.*',
+      let data = await query.select( 'c_blog.*','c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
         knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
         knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
 
@@ -61,7 +61,7 @@ exports.createBlog = async (context,dataset) => {
       }]);
     }
     trx.commit();
-    return dataset.ID;
+    return {"ID":dataset.ID,"ALIAS":dataset.ALIAS};
   }
   catch (e) {
     trx.rollback();
@@ -139,7 +139,7 @@ exports.updateBlog = async (context,id,dataset) => {
     }
 
     trx.commit();
-    return id;
+    return {"ID":id,"ALIAS":dataset.ALIAS};
   }
   catch (e) {
     trx.rollback();
@@ -160,7 +160,7 @@ exports.getAll = async (req, skip, take, filters) => {
     if (filters) {
       query = blogModel.generateFilters(query, filters);
     }
-    data.DATA = await query.offset(skip).limit(take).distinct( 'c_user.*','c_blog.*',
+    data.DATA = await query.offset(skip).limit(take).distinct('c_blog.*','c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
       knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
       knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
 

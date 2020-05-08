@@ -37,7 +37,7 @@ blog.addBlog  = async (req,res) =>{
         res.status(200).json(helpers.response("200", "error", "Database Error!"));
       }
       else{
-        res.status(201).json(helpers.response("201", "success", "blogDetails Added!", {ID:blogDetails}));
+        res.status(201).json(helpers.response("201", "success", "blogDetails Added!", {DATA:blogDetails}));
       }
     }
     else{
@@ -104,7 +104,7 @@ blog.updateBlog = async (req,res) => {
       let title = typeof (payload.TITLE) === "string" && payload.TITLE.trim().length > 0? payload.TITLE : false;
       let authorBy = typeof (payload.AUTHOR_BY) === "string" && payload.AUTHOR_BY.trim().length > 0? payload.AUTHOR_BY : false;
       let status = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0? payload.STATUS : false;
-      let publication = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0? payload.STATUS : '';
+      let publication = typeof (payload.PUBLICATION) === "string" && payload.PUBLICATION.trim().length > 0? payload.PUBLICATION : '';
       let category = payload.CATEGORIES.length > 0 ? payload.CATEGORIES : [];
       let tags = payload.TAGS.length > 0 ? payload.TAGS : [];
       let content = typeof (payload.CONTENT) === "object"? payload.CONTENT : false;
@@ -126,7 +126,7 @@ blog.updateBlog = async (req,res) => {
           res.status(200).json(helpers.response("200", "error", "Database Error!"));
         }
         else{
-          res.status(200).json(helpers.response("201", "success", "blogDetails Updated!", {ID:blogDetails}));
+          res.status(200).json(helpers.response("201", "success", "blogDetails Updated!", {DATA:blogDetails}));
         }
       }
       else{
