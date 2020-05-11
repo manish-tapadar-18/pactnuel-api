@@ -21,12 +21,12 @@ file.uploadFile = (req, res) => {
   try{
     let auth = req.mwValue.auth;
     let busboy = new Busboy({headers: req.headers});
-    busboy.on("file", function (fieldname, file, filename, encoding, mimetype) {
+    busboy.on("file", async function (fieldname, file, filename, encoding, mimetype) {
       // path to file upload
       let ext = filename.split('.').pop();
       filename = uniqid()+'.'+ext;
       const saveTo = (__dirname+ "/../files/" + filename);
-      file.pipe(fs.createWriteStream(saveTo));
+      await file.pipe(fs.createWriteStream(saveTo));
 
       let dataset = {
         ID: uniqid(),
