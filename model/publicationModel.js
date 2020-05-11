@@ -57,14 +57,16 @@ exports.getDetailById = async (id) => {
 exports.getUsersPublication = async (userId) => {
   try{
     let data = await knex.from('c_publication_user')
-      .select('c_publication_user.*','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME',
-      'c_publication.TITLE','c_publication.DESCRIPTION','c_publication.TAG_LINE',
+      .select('c_publication_user.*','c_user.NAME as WRITER_FIRST_NAME','c_user.LAST_NAME as WRITER_LAST_NAME',
+        'c1.NAME as AUTHOR_FIRST_NAME','c1.LAST_NAME as AUTHOR_LAST_NAME',
+      'c_publication.TITLE','c_publication.DESCRIPTION','c_publication.TAG_LINE','c_publication.ALIAS',
         'AVATAR.PATH as AVATAR_FILE_PATH',
         'LOGO.PATH as LOGO_FILE_PATH')
       .innerJoin('c_user', 'c_publication_user.USER_ID', 'c_user.ID')
       .innerJoin('c_publication', 'c_publication_user.PUBLICATION_ID', 'c_publication.ID')
       .leftJoin('c_file as AVATAR', 'c_publication.AVATAR', 'AVATAR.ID')
       .leftJoin('c_file as LOGO', 'c_publication.LOGO', 'LOGO.ID')
+      .innerJoin('c_user as c1', 'c_publication.AUTHOR_BY', 'c1.ID')
       .where({'c_publication_user.USER_ID':userId});
     return data;
   }
@@ -98,7 +100,7 @@ exports.createPublication = async (context,dataset) => {
       }]);
     }
     trx.commit();
-    return dataset.ID;
+    return {"ID":dataset.ID,"ALIAS":dataset.ALIAS};
   }
   catch (e) {
     trx.rollback();
