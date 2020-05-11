@@ -100,7 +100,7 @@ exports.createPublication = async (context,dataset) => {
       }]);
     }
     trx.commit();
-    return {"ID":dataset.ID,"ALIAS":dataset.ALIAS};
+    return dataset.ID;
   }
   catch (e) {
     trx.rollback();
