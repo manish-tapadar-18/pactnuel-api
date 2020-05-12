@@ -22,6 +22,8 @@ router.route("/userDetails").post(middleware.checkFormatKey,userController.getDe
 router.route("/accountActivation").post(middleware.checkFormatKey,userController.accountActivation);
 router.route("/forgotPasswordResendActivation").post(middleware.checkFormatKey,userController.forgotPasswordResendActivation);
 router.route("/forgotPassword").post(middleware.checkFormatKey,userController.forgotPassword);
+router.route("/getAllUsers").post(middleware.checkFormatKey,userController.getAllUsers);
+
 
 
 //File API

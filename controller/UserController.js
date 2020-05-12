@@ -4,6 +4,8 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import userModel from '../model/userModel';
 import uniqid from 'uniqid';
+import publicationModel from "../model/publicationModel";
+import publication from "./PublicationController";
 const md5 = require('md5');
 
 
@@ -284,6 +286,26 @@ user.forgotPassword = async (req,res) => {
 
 
 };
+
+user.getAllUsers = async (req,res) => {
+  try {
+    let skip = req.query.skip ? req.query.skip : 0;
+    let take = req.query.take ? req.query.take : 50;
+    let filters = typeof (req.body.filters) === "object" ? req.body.filters : [];
+    let data = await userModel.getAll(req,skip,take,filters);
+    if (data != null) {
+      res.status(200).json(helpers.response("200", "success", "Fetch Successful", data));
+    }
+    else {
+      res.status(200).json(helpers.response("200", "error", "Fetch is not possible!"));
+    }
+  }
+  catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+  }
+
+};
+
 
 //POST AUTH
 /**

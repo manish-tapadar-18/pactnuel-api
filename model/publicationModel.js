@@ -17,9 +17,10 @@ exports.getDetail = async (alias) => {
 
       let data = {};
       data.DETAILS = await query.select('c_publication.*','AVATAR.PATH as AVATAR_FILE_PATH',
-        'LOGO.PATH as LOGO_FILE_PATH','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME');
+        'LOGO.PATH as LOGO_FILE_PATH','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME'
+      ,'c_user.EMAIL as AUTHOR_EMAIL');
       data.WRITERS = await knex.from('c_publication_user')
-        .select('c_publication_user.*','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME')
+        .select('c_publication_user.*','c_user.NAME as AUTHOR_FIRST_NAME','c_user.EMAIL as AUTHOR_EMAIL','c_user.LAST_NAME as AUTHOR_LAST_NAME')
         .innerJoin('c_user', 'c_publication_user.USER_ID', 'c_user.ID')
         .where({'c_publication_user.PUBLICATION_ID':data.DETAILS[0].ID});
       return data;
