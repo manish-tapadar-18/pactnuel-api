@@ -240,9 +240,5 @@ publication.menuPublication = async (req,res) => {
 };
 
 
-
-
-
-
 export default publication;
 

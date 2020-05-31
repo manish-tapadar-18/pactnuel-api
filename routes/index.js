@@ -46,6 +46,9 @@ router.route("/addBlog").post(middleware.checkUserAuth,blogController.addBlog);
 router.route("/getAllBlog").post(middleware.checkUserAuth,blogController.getAllBlog);
 router.route("/updateBlog/:id").put(middleware.checkUserAuth,blogController.updateBlog);
 router.route("/getBlog/:alias").get(middleware.checkUserAuth,blogController.getBlog);
+router.route("/markTopBlog/:id").put(middleware.checkUserAuth,blogController.markTop);
+router.route("/markFeaturedBlog/:id").put(middleware.checkUserAuth,blogController.markFeatured);
+router.route("/updateViewsCount/:alias").put(middleware.checkUserAuth,blogController.updateViewsCount);
 
 
 //publication API

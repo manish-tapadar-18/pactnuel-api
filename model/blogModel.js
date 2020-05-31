@@ -243,3 +243,78 @@ exports.generateFilters = function (query, filters) {
 
   return query;
 };
+
+exports.markTop = async (id,status) => {
+  try{
+
+    await knex('c_blog').where({
+      ID: id
+    }).update({
+      TOP:status
+    });
+
+    return 'success';
+
+  }catch (e) {
+    return e;
+  }
+};
+
+exports.markFeatured = async (id,status) => {
+  try{
+
+    await knex('c_blog').where({
+      ID: id
+    }).update({
+      FEATURED:status
+    });
+
+    return 'success';
+
+  }catch (e) {
+    return e;
+  }
+
+
+};
+
+exports.updateViewsCount = async (alias,views) => {
+  try{
+
+    await knex('c_blog').where({
+      ALIAS: alias
+    }).update({
+      VIEWS:views+1
+    });
+
+    return 'success';
+
+  }catch (e) {
+    return e;
+  }
+
+
+};
+
+
+exports.getDetailById = async (id) => {
+  try {
+    let query = knex.from('c_blog')
+      .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
+      .leftJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
+      .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
+      .where({'c_blog.ID':id});
+
+    let data = await query.select( 'c_blog.*','c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
+      knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
+      knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
+
+    return data[0];
+  }
+  catch (e) {
+    return e;
+  }
+
+
+
+};
