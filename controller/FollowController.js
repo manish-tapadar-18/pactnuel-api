@@ -99,7 +99,7 @@ follow.followCategory = async (req,res) => {
       res.end();
       return;
     }
-    let getDetails = await categoryModel.getDetail(req.params.id);
+    let getDetails = await categoryModel.getDetail(req, req.params.id);
     if(getDetails != null ){
       let status = await followModel.followCategory(req, req.params.id);
       if(status != null){

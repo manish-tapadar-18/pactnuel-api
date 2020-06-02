@@ -142,141 +142,34 @@ middleware.checkUserCourseRole = async (req, res, next) => {
   }
 };
 
-middleware.assignPermission = (req, res, next) => {
+middleware.adjustUserAuth = (req, res, next) =>{
   try{
-    let path = req.route.path;
-    if(path === "/section/update"
-      || path === "/section/changeStatus/:sectionId"
-    ){
-      req.permissionName = "permission_edit_section";
-      next();
-    }
-    else if(path === "/lesson/add"){
-      req.permissionName = "permission_add_lessonandworksheet";
-      next();
-    }
-    else if(path === "/lesson/update"){
-      req.permissionName = {};
-      req.permissionName.all = "permission_edit_all_lessonandworksheet";
-      req.permissionName.own = "permission_edit_own_lessonandworksheet";
-      req.permissionContentType = "page";
-      req.permissionContentId = typeof (req.body.id) === "number" && req.body.id > 0 ? req.body.id : 0;
-      next();
-    }
-    else if(path === "/passage/update"){
-      req.permissionName = {};
-      req.permissionName.all = "permission_edit_all_reference";
-      req.permissionName.own = "permission_edit_own_reference";
-      req.permissionContentType = "passage";
-      req.permissionContentId = typeof (req.body.passageId) === "number" && req.body.passageId > 0 ? req.body.passageId : 0;
-      next();
-    }else if(path ==="/question/add"){
-      req.permissionName = "permission_add_question";
-      next();
-    }else if(path ==="/question/update"){
-      req.permissionName ={};
-      req.permissionName.all = "permission_edit_all_question";
-      req.permissionName.own = "permission_edit_own_question";
-      req.permissionContentType = "question";
-      req.permissionContentId = typeof (req.body.questionId) === "number" && req.body.questionId > 0 ? req.body.questionId : 0;
-      next();
-    }
-    else {
-      res.status(200).json(helpers.response("200", "error", "No permission has been added to this route."));
-    }
-  }
-  catch (err) {
-    res.status(400).json(helpers.response("400","error","Bad request"));
-  }
-};
-
-middleware.checkUserPermission = (req, res, next) => {
-  try{
-    let permissionName = req.permissionName;
-    let accessRole = false;
-    if(req.headers.hasOwnProperty("accessrole") && typeof(req.headers.accessrole) === "string" && !isNaN(req.headers.accessrole) && permissionName){
-      accessRole = parseInt(req.headers.accessrole);
-      helpers.hasPermission(permissionName,accessRole).then((resp)=>{
-        if(resp.status){
-          next();
-        }
-        else {
-          res.status(200).json(helpers.response("200", "error", "Access Denied!"));
-        }
-      })
-        .catch((err) => {
-          res.status(500).json(helpers.response("500", "error", "something went wrong",err));
+    if(req.headers.hasOwnProperty("authorization")) {
+      let token = typeof (req.headers.authorization.split(" ")) === "object" && req.headers.authorization.split(" ").length === 2 ? req.headers.authorization.split(" ") : false;
+      if (token) {
+        helpers.verifyToken(token[1], (err, tokenData) => {
+          if (!err && tokenData) {
+            req.mwValue = {};
+            req.mwValue.auth = tokenData;
+            next();
+          } else {
+            res.status(403).json(helpers.response("403", "error", "User Unauthorized"));
+          }
         });
-    }
-    else{
-      res.status(200).json(helpers.response("200", "error", "Permission Denied"));
+      } else {
+        res.status(403).json(helpers.response("403", "error", "Token not valid"));
+      }
+    }else{
+      req.mwValue = {};
+      req.mwValue.auth = {};
+      req.mwValue.auth.id = 0;
+      next();
     }
   }
   catch (err) {
-    res.status(400).json(helpers.response("400","error","Bad request"));
+    res.status(403).json(helpers.response("403","error","Token not valid", err.message));
   }
 };
 
-middleware.checkUserHasRole = (req, res, next) => {
-  try{
-    let auth = req.mwValue.auth;
-    let accessRole = false;
-    if(req.headers.hasOwnProperty("accessrole") && typeof(req.headers.accessrole) === "string" && !isNaN(req.headers.accessrole)){
-      accessRole = parseInt(req.headers.accessrole);
-    }
-    if(accessRole){
-      let roledetails = JSON.parse(auth.roleDetails);
-      let i = 0;
-      let flag = false;
-      for(i=0; i<roledetails.length;i++){
-        if(roledetails[i].roleId == accessRole && roledetails[i].type == "backend"){
-          flag = true;
-        }
-      }
-      if(flag == true){
-        next();
-      }
-      else{
-        res.status(200).json(helpers.response("200", "error", "Access Denied, You don't have this role."));
-      }
-
-    } else {
-      res.status(200).json(helpers.response("200", "error", "Role not valid."));
-    }
-  }
-  catch (err) {
-    res.status(400).json(helpers.response("400","error","Bad request"));
-  }
-};
-
-middleware.checkEditAllOwnPermission = (req, res, next) => {
-  let auth = req.mwValue.auth;
-  let contentType = req.permissionContentType;
-  let contentId = req.permissionContentId;
-  let permissionNames = req.permissionName;
-  if(contentId && contentType && permissionNames){
-    //Check all permission exists
-    let accessRole = false;
-    if(req.headers.hasOwnProperty("accessrole") && typeof(req.headers.accessrole) === "string" && !isNaN(req.headers.accessrole) && permissionNames.all){
-      accessRole = parseInt(req.headers.accessrole);
-      helpers.checkEditOwnAllPermission(contentType,contentId,permissionNames,auth.id,accessRole).then((resp)=>{
-        if(resp.status){
-          next();
-        }
-        else{
-          res.status(200).json(helpers.response("200", "error", "Access Denied!"));
-        }
-      }).catch((err) => {
-        res.status(500).json(helpers.response("500", "error", "something wents wrong",err));
-      });
-    }
-    else{
-      res.status(200).json(helpers.response("200", "error", "Role Id not valid."));
-    }
-  }
-  else{
-    res.status(200).json(helpers.response("200", "error", "Problem in content Id."));
-  }
-};
 
 export default middleware;

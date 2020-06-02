@@ -1,10 +1,6 @@
-import blogModel from "./blogModel";
-
 const uniqid = require('uniqid');
 import {knex} from "../config/config";
 import followModel from "./followModel"
-import userModel from "./userModel";
-import publicationModel from "./publicationModel";
 
 
 exports.followBlog = async (req ,id) => {

@@ -32,21 +32,21 @@ router.route("/uploadFile").post(middleware.checkUserAuth,fileController.uploadF
 
 //category API
 router.route("/addCategory").post(middleware.checkUserAuth,categoryController.addCategory);
-router.route("/getAllCategory").get(middleware.checkUserAuth,categoryController.getAllCategory);
+router.route("/getAllCategory").get(middleware.adjustUserAuth, categoryController.getAllCategory);
 router.route("/updateCategory/:id").put(middleware.checkUserAuth,categoryController.updateCategory);
-router.route("/getCategory/:id").get(middleware.checkUserAuth,categoryController.getCategory);
+router.route("/getCategory/:id").get(middleware.adjustUserAuth,categoryController.getCategory);
 
 
 //tags API
 router.route("/addUpdateTags").post(middleware.checkUserAuth,tagController.addUpdateTags);
-router.route("/getAllTags").get(middleware.checkUserAuth,tagController.getAllTags);
+router.route("/getAllTags").get(middleware.adjustUserAuth,tagController.getAllTags);
 router.route("/getTags/:id").get(middleware.checkUserAuth,tagController.getTag);
 
 //blog API
 router.route("/addBlog").post(middleware.checkUserAuth,blogController.addBlog);
-router.route("/getAllBlog").post(middleware.checkUserAuth,blogController.getAllBlog);
+router.route("/getAllBlog").post(middleware.adjustUserAuth,blogController.getAllBlog);
 router.route("/updateBlog/:id").put(middleware.checkUserAuth,blogController.updateBlog);
-router.route("/getBlog/:alias").get(middleware.checkUserAuth,blogController.getBlog);
+router.route("/getBlog/:alias").get(middleware.adjustUserAuth,blogController.getBlog);
 router.route("/markTopBlog/:id").put(middleware.checkUserAuth,blogController.markTop);
 router.route("/markFeaturedBlog/:id").put(middleware.checkUserAuth,blogController.markFeatured);
 router.route("/updateViewsCount/:alias").put(middleware.checkUserAuth,blogController.updateViewsCount);
@@ -54,9 +54,9 @@ router.route("/updateViewsCount/:alias").put(middleware.checkUserAuth,blogContro
 
 //publication API
 router.route("/addPublication").post(middleware.checkUserAuth,publicationController.addPublication);
-router.route("/getAllPublication").post(middleware.checkUserAuth,publicationController.getAllPublication);
+router.route("/getAllPublication").post(middleware.adjustUserAuth,publicationController.getAllPublication);
 router.route("/updatePublication/:id").put(middleware.checkUserAuth,publicationController.updatePublication);
-router.route("/getPublication/:alias").get(middleware.checkUserAuth,publicationController.getPublication);
+router.route("/getPublication/:alias").get(middleware.adjustUserAuth,publicationController.getPublication);
 router.route("/getUsersPublication/:userId").get(middleware.checkUserAuth,publicationController.getUsersPublication);
 router.route("/removePublication/:userId/:publicationId").put(middleware.checkUserAuth,publicationController.removePublication);
 router.route("/menuPublication/:publicationId").put(middleware.checkUserAuth,publicationController.menuPublication);

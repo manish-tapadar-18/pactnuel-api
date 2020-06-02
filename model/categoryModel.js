@@ -3,11 +3,20 @@ import {knex} from "../config/config";
 import categoryModel from './categoryModel';
 
 //get UserID wise data
-exports.getDetail = async (id) => {
+exports.getDetail = async (req, id) => {
   try{
-    let result = await knex.select('c_category.*','i1.PATH as IMAGE_PATH')
+    let userId = 0;
+    if(req.hasOwnProperty('mwValue')){
+      userId = req.mwValue.auth.ID;
+    }
+    let result = await knex.select('c_category.*','i1.PATH as IMAGE_PATH','c_user_followed_categories.ID as FOLLOWEDSTATUS')
       .from('c_category')
       .innerJoin('c_file as i1','i1.ID','c_category.IMAGE_ID')
+      .leftJoin('c_user_followed_categories', function () {
+        this
+          .on('c_category.ID', 'c_user_followed_categories.CATEGORY_ID')
+          .onIn('c_user_followed_categories.USER_ID',[userId])
+      })
       .where({ "c_category.ID": id}).limit(1);
     if (result.length == 0) {
       return null;
@@ -53,9 +62,19 @@ exports.updateCategory = async (context,id,dataset) => {
 
 exports.getAll = async (req) => {
   try{
-    let result = await knex.select('c_category.*','i1.PATH as IMAGE_PATH')
+    let userId = 0;
+    if(req.hasOwnProperty('mwValue')){
+      userId = req.mwValue.auth.ID;
+    }
+
+    let result = await knex.select('c_category.*','i1.PATH as IMAGE_PATH','c_user_followed_categories.ID as FOLLOWEDSTATUS')
       .from('c_category')
       .innerJoin('c_file as i1','i1.ID','c_category.IMAGE_ID')
+      .leftJoin('c_user_followed_categories', function () {
+        this
+          .on('c_category.ID', 'c_user_followed_categories.CATEGORY_ID')
+          .onIn('c_user_followed_categories.USER_ID',[userId])
+      })
       .where({});
 
     return result;

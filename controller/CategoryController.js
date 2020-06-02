@@ -43,7 +43,7 @@ category.getCategory = async (req,res) => {
       res.end();
       return;
     }
-    let getDetials = await categoryModel.getDetail(req.params.id);
+    let getDetials = await categoryModel.getDetail(req, req.params.id);
 
       if(getDetials != null){
         res.status(200).json(helpers.response("200", "success", "Fetch Successful",getDetials));

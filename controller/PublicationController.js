@@ -2,8 +2,7 @@ import helpers from "../helpers";
 import {config} from "dotenv";
 import publicationModel from '../model/publicationModel';
 import uniqid from 'uniqid';
-import categoryModel from "../model/categoryModel";
-import category from "./CategoryController";
+
 
 config();
 
