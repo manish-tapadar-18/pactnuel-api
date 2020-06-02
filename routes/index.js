@@ -6,6 +6,7 @@ import categoryController from "../controller/CategoryController";
 import tagController from "../controller/TagController";
 import blogController from "../controller/BlogController";
 import publicationController from "../controller/PublicationController";
+import followController from "../controller/FollowController";
 import middleware from "../middleware";
 
 const router = express.Router();
@@ -59,5 +60,11 @@ router.route("/getPublication/:alias").get(middleware.checkUserAuth,publicationC
 router.route("/getUsersPublication/:userId").get(middleware.checkUserAuth,publicationController.getUsersPublication);
 router.route("/removePublication/:userId/:publicationId").put(middleware.checkUserAuth,publicationController.removePublication);
 router.route("/menuPublication/:publicationId").put(middleware.checkUserAuth,publicationController.menuPublication);
+
+//user followed
+router.route("/follow/blog/:id").post(middleware.checkUserAuth,followController.followBlog);
+router.route("/follow/publication/:id").post(middleware.checkUserAuth,followController.followPublication);
+router.route("/follow/author/:id").post(middleware.checkUserAuth,followController.followAuthor);
+router.route("/follow/category/:id").post(middleware.checkUserAuth,followController.followCategory);
 
 export default router;

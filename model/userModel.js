@@ -200,3 +200,18 @@ exports.generateFilters = function (query, filters) {
 
   return query;
 };
+
+//get UserID wise data
+exports.getDetailById = async (id) => {
+  const dbTransaction = await knex.transaction;
+  try{
+    let result = await knex.select('*')
+      .from('c_user').where({ "ID": id}).limit(1);
+    if (result.length == 0) {
+      return null;
+    }
+    return result[0];
+  }catch (e) {
+    throw e
+  }
+};
