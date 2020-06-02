@@ -66,5 +66,11 @@ router.route("/follow/blog/:id").post(middleware.checkUserAuth,followController.
 router.route("/follow/publication/:id").post(middleware.checkUserAuth,followController.followPublication);
 router.route("/follow/author/:id").post(middleware.checkUserAuth,followController.followAuthor);
 router.route("/follow/category/:id").post(middleware.checkUserAuth,followController.followCategory);
+router.route("/follow/blog/:id").get(middleware.checkUserAuth,followController.getFollowedBlog);
+router.route("/follow/publication/:id").get(middleware.checkUserAuth,followController.getFollowedPublication);
+router.route("/follow/author/:id").get(middleware.checkUserAuth,followController.getFollowedAuthor);
+router.route("/follow/category/:id").get(middleware.checkUserAuth,followController.getFollowedCategories);
+
+
 
 export default router;

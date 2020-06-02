@@ -212,6 +212,6 @@ exports.getDetailById = async (id) => {
     }
     return result[0];
   }catch (e) {
-    throw e
+    throw e.message;
   }
 };
