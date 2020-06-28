@@ -135,12 +135,15 @@ exports.updatePublication = async (context,id,dataset) => {
       }
     }
     for(let p = 0; p < writers.length; p++){
-      await trx('c_publication_user').insert([{
-        ID: uniqid(),
-        PUBLICATION_ID:id,
-        USER_ID:writers[p].USER_ID,
-        TYPE:writers[p].TYPE,
-      }]);
+      if(writers[p].TYPE == 'WRITER'){
+        await trx('c_publication_user').insert([{
+          ID: uniqid(),
+          PUBLICATION_ID:id,
+          USER_ID:writers[p].USER_ID,
+          TYPE:writers[p].TYPE,
+        }]);
+      }
+
     }
     trx.commit();
     return id;
