@@ -146,7 +146,7 @@ user.getDetails = async (req,res) => {
     let email = typeof (payload.EMAIL) === "string" && payload.EMAIL.trim().length > 0 ? payload.EMAIL : false;
     if(email){
       //check mobile and otp is correct or not
-      let userDetails = await userModel.getDetail(email);
+      let userDetails = await userModel.getDetail(req, email);
       if(userDetails != null){
         delete userDetails.PASSWORD;
         res.status(200).json(helpers.response("200", "success", "Successful!", userDetails));

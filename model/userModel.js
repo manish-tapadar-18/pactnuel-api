@@ -5,10 +5,19 @@ import categoryModel from "./categoryModel";
 import publicationModel from "./publicationModel";
 
 //get UserID wise data
-exports.getDetail = async (email) => {
+exports.getDetail = async (req, email) => {
+  let userId = 0;
+  if(req.hasOwnProperty('mwValue')){
+    userId = req.mwValue.auth.ID;
+  }
   const dbTransaction = await knex.transaction;
   try{
-    let result = await knex.select('*')
+    let result = await knex.select('*','c_user_followed_authors.ID as FOLLOWEDSTATUS')
+      .leftJoin('c_user_followed_authors', function () {
+        this
+          .on('c_user.ID', 'c_user_followed_authors.AUTHOR_ID')
+          .onIn('c_user_followed_authors.AUTHOR_ID',[userId])
+      })
       .from('c_user').where({ "EMAIL": email}).limit(1);
     if (result.length == 0) {
       return null;
@@ -139,14 +148,23 @@ exports.updatePassword = async (email,password) => {
 
 exports.getAll = async (req, skip, take, filters) => {
   try {
+    let userId = 0;
+    if(req.hasOwnProperty('mwValue')){
+      userId = req.mwValue.auth.ID;
+    }
     let data = {};
     let query = knex.from('c_user')
+      .leftJoin('c_user_followed_authors', function () {
+        this
+          .on('c_user.ID', 'c_user_followed_authors.AUTHOR_ID')
+          .onIn('c_user_followed_authors.AUTHOR_ID',[userId])
+      })
       .where({ });
 
     if (filters) {
       query = userModel.generateFilters(query, filters);
     }
-    data.DATA = await query.offset(skip).limit(take).distinct('c_user.*');
+    data.DATA = await query.offset(skip).limit(take).distinct('c_user.*','c_user_followed_authors.ID as FOLLOWEDSTATUS');
     let totalCount = await userModel.getCount(filters);
     data.TOTAL = totalCount[0].COUNT;
     return data;
