@@ -7,15 +7,25 @@ const _ = require('lodash');
 
 
 //get BLOG wise data
-exports.getDetail = async (alias) => {
+exports.getDetail = async (req,alias) => {
     try {
+      let userId = 0;
+      if(req.hasOwnProperty('mwValue')){
+        userId = req.mwValue.auth.ID;
+      }
       let query = knex.from('c_blog')
         .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
         .leftJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
         .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
+        .leftJoin('c_user_followed_blog', function () {
+          this
+            .on('c_blog.ID', 'c_user_followed_blog.BLOG_ID')
+            .onIn('c_user_followed_blog.USER_ID',[userId])
+        })
         .where({'c_blog.ALIAS':alias});
 
       let data = await query.select( 'c_blog.*','c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
+        'c_user_followed_blog.ID as FOLLOWEDSTATUS',
         knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
         knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
 
@@ -151,16 +161,26 @@ exports.updateBlog = async (context,id,dataset) => {
 exports.getAll = async (req, skip, take, filters) => {
   try {
     let data = {};
+    let userId = 0;
+    if(req.hasOwnProperty('mwValue')){
+      userId = req.mwValue.auth.ID;
+    }
     let query = knex.from('c_blog')
       .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
       .leftJoin('c_blog_category', 'c_blog_category.BLOG_ID', 'c_blog.ID')
       .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
+      .leftJoin('c_user_followed_blog', function () {
+        this
+          .on('c_blog.ID', 'c_user_followed_blog.BLOG_ID')
+          .onIn('c_user_followed_blog.USER_ID',[userId])
+      })
       .where({ });
 
     if (filters) {
       query = blogModel.generateFilters(query, filters);
     }
     data.DATA = await query.offset(skip).limit(take).distinct('c_blog.*','c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
+      'c_user_followed_blog.ID as FOLLOWEDSTATUS',
       knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
       knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
 

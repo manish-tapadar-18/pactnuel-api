@@ -7,17 +7,28 @@ const _ = require('lodash');
 
 
 //get PUBLICATION wise data
-exports.getDetail = async (alias) => {
+exports.getDetail = async (req, alias) => {
     try {
+      let userId = 0;
+      if(req.hasOwnProperty('mwValue')){
+        userId = req.mwValue.auth.ID;
+      }
       let query = knex.from('c_publication')
         .innerJoin('c_user', 'c_publication.AUTHOR_BY', 'c_user.ID')
         .leftJoin('c_file as AVATAR', 'c_publication.AVATAR', 'AVATAR.ID')
         .leftJoin('c_file as LOGO', 'c_publication.LOGO', 'LOGO.ID')
+        .leftJoin('c_user_followed_publication', function () {
+          this
+            .on('c_publication.ID', 'c_user_followed_publication.PUBLICATION_ID')
+            .onIn('c_user_followed_publication.USER_ID',[userId])
+        })
         .where({'c_publication.ALIAS':alias});
 
       let data = {};
       data.DETAILS = await query.select('c_publication.*','AVATAR.PATH as AVATAR_FILE_PATH',
-        'LOGO.PATH as LOGO_FILE_PATH','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME');
+        'LOGO.PATH as LOGO_FILE_PATH','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME',
+        'c_user_followed_publication.ID as FOLLOWEDSTATUS'
+      );
       data.WRITERS = await knex.from('c_publication_user')
         .select('c_publication_user.*','c_user.NAME as AUTHOR_FIRST_NAME','c_user.EMAIL as EMAIL','c_user.LAST_NAME as AUTHOR_LAST_NAME')
         .innerJoin('c_user', 'c_publication_user.USER_ID', 'c_user.ID')
@@ -157,18 +168,29 @@ exports.updatePublication = async (context,id,dataset) => {
 
 exports.getAll = async (req, skip, take, filters) => {
   try {
+    let userId = 0;
+    if(req.hasOwnProperty('mwValue')){
+      userId = req.mwValue.auth.ID;
+    }
     let data = {};
     let query = knex.from('c_publication')
       .innerJoin('c_user', 'c_publication.AUTHOR_BY', 'c_user.ID')
       .leftJoin('c_file as AVATAR', 'c_publication.AVATAR', 'AVATAR.ID')
       .leftJoin('c_file as LOGO', 'c_publication.LOGO', 'LOGO.ID')
+      .leftJoin('c_user_followed_publication', function () {
+        this
+          .on('c_publication.ID', 'c_user_followed_publication.PUBLICATION_ID')
+          .onIn('c_user_followed_publication.USER_ID',[userId])
+      })
       .where({ });
 
     if (filters) {
       query = publicationModel.generateFilters(query, filters);
     }
     data.DATA = await query.offset(skip).limit(take).distinct('c_publication.*','AVATAR.PATH as AVATAR_FILE_PATH',
-      'LOGO.PATH as LOGO_FILE_PATH','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME');
+      'LOGO.PATH as LOGO_FILE_PATH','c_user.NAME as AUTHOR_FIRST_NAME','c_user.LAST_NAME as AUTHOR_LAST_NAME',
+      'c_user_followed_publication.ID as FOLLOWEDSTATUS'
+    );
     let totalCount = await publicationModel.getCount(filters);
     data.TOTAL = totalCount[0].COUNT;
     return data;

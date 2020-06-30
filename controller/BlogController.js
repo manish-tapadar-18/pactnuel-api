@@ -58,7 +58,7 @@ blog.getBlog = async (req,res) => {
       res.end();
       return;
     }
-    let getDetials = await blogModel.getDetail(req.params.alias);
+    let getDetials = await blogModel.getDetail(req,req.params.alias);
 
     if(getDetials != null){
       res.status(200).json(helpers.response("200", "success", "Fetch Successful",getDetials));

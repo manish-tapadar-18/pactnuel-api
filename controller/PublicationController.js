@@ -64,7 +64,7 @@ publication.getPublication = async (req,res) => {
       res.end();
       return;
     }
-    let getDetials = await publicationModel.getDetail(req.params.alias);
+    let getDetials = await publicationModel.getDetail(req, req.params.alias);
 
       if(getDetials != null){
         res.status(200).json(helpers.response("200", "success", "Fetch Successful",getDetials));
