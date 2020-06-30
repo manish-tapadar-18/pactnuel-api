@@ -27,7 +27,7 @@ user.register = async (req,res) => {
     let role = typeof (payload.ROLE) === "object" && payload.ROLE.ROLES.length > 0? payload.ROLE : false;
 
     if(email && password && role && firstName && lastName && loginType){
-      let userDetails = await userModel.getDetail(email);
+      let userDetails = await userModel.getDetail(req, email);
       let userDetailsMobile = null;
       if(mobile != null){
         userDetailsMobile = await userModel.getDetailFromMobile(mobile);
@@ -84,7 +84,7 @@ user.login = async (req,res) => {
     let password = typeof (payload.PASSWORD) === "string" && payload.PASSWORD.trim().length > 0? payload.PASSWORD : false;
     if(email && password){
       //check mobile and otp is correct or not
-        let userDetails = await userModel.getDetail(email);
+        let userDetails = await userModel.getDetail(req, email);
 
         if(userDetails != null){
           if(userDetails.EMAIL_VERIFY == 0){
@@ -173,7 +173,7 @@ user.accountActivation = async (req,res) => {
     let token = typeof (payload.TOKEN) === "string" && payload.TOKEN.trim().length > 0? payload.TOKEN : false;
 
     if(email && token){
-      let userDetails = await userModel.getDetail(email);
+      let userDetails = await userModel.getDetail(req, email);
       if(userDetails != null){
        if(token==userDetails.REMEMBER_TOKEN){
          //Update User with verify 1
@@ -208,7 +208,7 @@ user.forgotPasswordResendActivation = async (req,res) => {
     let type = typeof (payload.TYPE) === "string" && (payload.TYPE=='RESEND' || payload.TYPE=='FORGOT') && payload.TYPE.trim().length > 0 ? payload.TYPE : false;
     if(email && type){
       //check mobile and otp is correct or not
-      let userDetails = await userModel.getDetail(email);
+      let userDetails = await userModel.getDetail(req, email);
       if(userDetails != null){
         let token = uniqid();
         let result = await userModel.updateToken(email,token);
@@ -259,7 +259,7 @@ user.forgotPassword = async (req,res) => {
     let token = typeof (payload.TOKEN) === "string" && payload.TOKEN.trim().length > 0? payload.TOKEN : false;
 
     if(email && token && password){
-      let userDetails = await userModel.getDetail(email);
+      let userDetails = await userModel.getDetail(req, email);
       if(userDetails != null){
         if(token==userDetails.REMEMBER_TOKEN){
           //change password
