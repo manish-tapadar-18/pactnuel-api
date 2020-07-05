@@ -12,7 +12,7 @@ exports.getDetail = async (req, email) => {
   }
   const dbTransaction = await knex.transaction;
   try{
-    let result = await knex.select('*','c_user_followed_authors.ID as FOLLOWEDSTATUS')
+    let result = await knex.select('c_user.*','c_user_followed_authors.ID as FOLLOWEDSTATUS')
       .leftJoin('c_user_followed_authors', function () {
         this
           .on('c_user.ID', 'c_user_followed_authors.AUTHOR_ID')
