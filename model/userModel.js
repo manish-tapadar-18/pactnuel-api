@@ -18,7 +18,7 @@ exports.getDetail = async (req, email) => {
           .on('c_user.ID', 'c_user_followed_authors.AUTHOR_ID')
           .onIn('c_user_followed_authors.AUTHOR_ID',[userId])
       })
-      .from('c_user').where({ "EMAIL": email}).limit(1);
+      .from('c_user').where({ "c_user.EMAIL": email}).limit(1);
     if (result.length == 0) {
       return null;
     }

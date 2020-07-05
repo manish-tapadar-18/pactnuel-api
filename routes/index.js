@@ -19,7 +19,7 @@ router.use(middleware.checkFormatKey);
 //User API
 router.route("/login").post(middleware.checkFormatKey,userController.login);
 router.route("/register").post(middleware.checkFormatKey,userController.register);
-router.route("/userDetails").post(middleware.checkFormatKey,userController.getDetails);
+router.route("/userDetails").post(middleware.checkFormatKey,middleware.adjustUserAuth,userController.getDetails);
 router.route("/accountActivation").post(middleware.checkFormatKey,userController.accountActivation);
 router.route("/forgotPasswordResendActivation").post(middleware.checkFormatKey,userController.forgotPasswordResendActivation);
 router.route("/forgotPassword").post(middleware.checkFormatKey,userController.forgotPassword);
