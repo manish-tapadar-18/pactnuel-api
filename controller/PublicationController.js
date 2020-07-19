@@ -171,7 +171,7 @@ publication.updatePublication = async (req,res) => {
         res.status(200).json(helpers.response("200", "error", "Validation Error!"));
       }
     }catch(e){
-      res.status(500).json(helpers.response("500", "error", "Something went wrong"));
+      res.status(500).json(helpers.response("500", "error", e.message));
     }
 
 };

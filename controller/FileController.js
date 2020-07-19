@@ -17,7 +17,7 @@ config();
 let file = {};
 
 //SAVE FILE IN S3 CLIENT
-file.uploadFile = (req, res) => {
+file.uploadFile = async (req, res) => {
   try{
     let auth = req.mwValue.auth;
     let busboy = new Busboy({headers: req.headers});
@@ -33,7 +33,7 @@ file.uploadFile = (req, res) => {
         PATH:filename,
         MIME_TYPE:mimetype
       };
-      let fileId = fileModel.createFile(req,dataset);
+      let fileId = await fileModel.createFile(req,dataset);
       if(fileId != null){
         res.status(201).json(helpers.response("201", "success", "Successfully file added",dataset));
       }
