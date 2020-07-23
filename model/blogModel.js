@@ -147,8 +147,9 @@ exports.updateBlog = async (context,id,dataset) => {
     }
 
     //tags update
+    let currentTags = dataset.TAGS;
     if(typeof (dataset.TAGS) === "string"){
-      let currentTags = JSON.parse(dataset.TAGS);
+      currentTags = JSON.parse(dataset.TAGS);
     }
 
 
