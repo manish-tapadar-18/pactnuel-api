@@ -121,7 +121,9 @@ exports.updateBlog = async (context,id,dataset) => {
     });
     //get previous blog categories
     let currentCategories = dataset.CATEGORIES;
-
+    if(typeof (dataset.CATEGORIES) === "string"){
+      currentCategories = JSON.parse(currentCategories);
+    }
     //category update
     let previousCategories = await knex.select('c_blog_category.*').from('c_blog_category')
       .where({ "c_blog_category.BLOG_ID": id});
@@ -145,7 +147,10 @@ exports.updateBlog = async (context,id,dataset) => {
     }
 
     //tags update
-    let currentTags = JSON.parse(dataset.TAGS);
+    if(typeof (dataset.TAGS) === "string"){
+      let currentTags = JSON.parse(dataset.TAGS);
+    }
+
 
     let previousTags = await knex.select('c_blog_tag.*').from('c_blog_tag')
       .where({ "c_blog_tag.BLOG_ID": id});
