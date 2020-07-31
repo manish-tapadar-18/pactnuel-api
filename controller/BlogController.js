@@ -150,9 +150,8 @@ blog.markTop = async (req,res) => {
     let topCount = await knex.select('*')
       .from('c_blog')
       .where({ "TOP": 1});
-
-    if(topCount.length < 5){
-      let getDetails = await blogModel.getDetailById(req.params.id);
+    let getDetails = await blogModel.getDetailById(req.params.id);
+    if((topCount.length < 5 && getDetails.TOP == 1) || getDetails.TOP == 0){
       if(getDetails != null){
         if(getDetails.TOP == 0){
           getDetails.TOP = 1;
