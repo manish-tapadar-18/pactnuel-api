@@ -196,7 +196,7 @@ blog.markFeatured = async (req,res) => {
       .where({ "FEATURED": 1});
     let getDetails = await blogModel.getDetailById(req.params.id);
 
-    if((topCount.length < 5 && getDetails.TOP == 0) || getDetails.TOP == 1){
+    if((topCount.length < 5 && getDetails.FEATURED == 0) || getDetails.FEATURED == 1){
       if(getDetails != null){
         if(getDetails.FEATURED == 0){
           getDetails.FEATURED = 1;
