@@ -24,6 +24,7 @@ blog.addBlog  = async (req,res) =>{
     let featureMedia = typeof (payload.FEATURE_MEDIA) === "object"? payload.FEATURE_MEDIA : {};
     //check tags are duplicate or not
     // validation
+
     if(title && authorBy  && status && content) {
       payload.ID = uniqid();
       payload.STATUS = status;
