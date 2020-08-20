@@ -7,6 +7,7 @@ import tagController from "../controller/TagController";
 import blogController from "../controller/BlogController";
 import publicationController from "../controller/PublicationController";
 import followController from "../controller/FollowController";
+import commentController from "../controller/CommentsController";
 import middleware from "../middleware";
 
 const router = express.Router();
@@ -72,5 +73,10 @@ router.route("/follow/author/:id").get(middleware.checkUserAuth,followController
 router.route("/follow/category/:id").get(middleware.checkUserAuth,followController.getFollowedCategories);
 
 
+//comment API
+router.route("/addComment").post(middleware.checkUserAuth,commentController.addComment);
+router.route("/getAllComment").post(middleware.adjustUserAuth,commentController.getAllComment);
+router.route("/updateComment/:id").put(middleware.checkUserAuth,commentController.updateComment);
+router.route("/changeStatus/:id").put(middleware.checkUserAuth,commentController.changeStatus);
 
 export default router;
