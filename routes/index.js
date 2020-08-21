@@ -49,6 +49,7 @@ router.route("/getAllBlog").post(middleware.adjustUserAuth,blogController.getAll
 router.route("/updateBlog/:id").put(middleware.checkUserAuth,blogController.updateBlog);
 router.route("/getBlog/:alias").get(middleware.adjustUserAuth,blogController.getBlog);
 router.route("/relatedBlogs/:alias").get(middleware.adjustUserAuth,blogController.relatedBlogs);
+router.route("/pickedBlogs").get(middleware.adjustUserAuth,blogController.pickedBlogs);
 router.route("/markTopBlog/:id").put(middleware.checkUserAuth,blogController.markTop);
 router.route("/markFeaturedBlog/:id").put(middleware.checkUserAuth,blogController.markFeatured);
 router.route("/updateViewsCount/:alias").put(middleware.checkUserAuth,blogController.updateViewsCount);

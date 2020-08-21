@@ -279,6 +279,29 @@ blog.relatedBlogs = async (req,res) => {
 
 };
 
+blog.pickedBlogs = async (req,res) => {
+  try {
+    let userId = 0;
+    if(req.hasOwnProperty('mwValue')){
+      userId = req.mwValue.auth.ID;
+    }
+    let data = [];
+    if(userId != 0){
+      data = await blogModel.pickedBlogs(req, userId);
+    }
+    if (data != null) {
+      res.status(200).json(helpers.response("200", "success", "Fetch Successful", data));
+    }
+    else {
+      res.status(200).json(helpers.response("200", "error", "Fetch is not possible!"));
+    }
+  }
+  catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+  }
+
+};
+
 
 export default blog;
 
