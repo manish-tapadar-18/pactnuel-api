@@ -234,6 +234,7 @@ exports.getAll = async (req, skip, take, filters) => {
       'c_blog.UPDATED_AT',
       'c_blog.ALIAS',
       'c_blog.FEATURED',
+      'c_blog.CONTENT',
       'c_blog.TOP'
       ,'c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
       'c_user_followed_blog.ID as BLOGFOLLOWEDSTATUS',
