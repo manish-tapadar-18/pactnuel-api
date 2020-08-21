@@ -258,7 +258,26 @@ blog.updateViewsCount = async (req,res) => {
 
 };
 
+blog.relatedBlogs = async (req,res) => {
+  try {
+    if (!req.params.alias) {
+      res.status(400);
+      res.end();
+      return;
+    }
+    let data = await blogModel.relatedBlogs(req,req.params.alias);
+    if (data != null) {
+      res.status(200).json(helpers.response("200", "success", "Fetch Successful", data));
+    }
+    else {
+      res.status(200).json(helpers.response("200", "error", "Fetch is not possible!"));
+    }
+  }
+  catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+  }
 
+};
 
 
 export default blog;

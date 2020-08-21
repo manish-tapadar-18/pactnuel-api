@@ -221,7 +221,21 @@ exports.getAll = async (req, skip, take, filters) => {
     if (filters) {
       query = blogModel.generateFilters(query, filters);
     }
-    data.DATA = await query.offset(skip).limit(take).distinct('c_blog.*','c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
+    data.DATA = await query.offset(skip).limit(take).distinct(
+      'c_blog.ID',
+      'c_blog.TITLE',
+      'c_blog.DESCRIPTION',
+      'c_blog.FEATURE_MEDIA',
+      'c_blog.PUBLICATION',
+      'c_blog.AUTHOR_BY',
+      'c_blog.VIEWS',
+      'c_blog.STATUS',
+      'c_blog.CREATED_AT',
+      'c_blog.UPDATED_AT',
+      'c_blog.ALIAS',
+      'c_blog.FEATURED',
+      'c_blog.TOP'
+      ,'c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
       'c_user_followed_blog.ID as BLOGFOLLOWEDSTATUS',
       'c_user_followed_categories.ID as CATEGORYFOLLOWEDSTATUS',
       'c_user_followed_publication.ID as PUBLICATIONFOLLOWEDSTATUS',
@@ -401,6 +415,83 @@ exports.getDetailById = async (id) => {
       knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
 
     return data[0];
+  }
+  catch (e) {
+    return e;
+  }
+
+
+
+};
+
+exports.relatedBlogs = async (req,alias) => {
+  try {
+    let userId = 0;
+    if(req.hasOwnProperty('mwValue')){
+      userId = req.mwValue.auth.ID;
+    }
+    //get Author Id
+    let blogDetails = await blogModel.getDetail(req,alias);
+    //get category Id
+    let categories = JSON.parse(blogDetails.CATEGORIES);
+    categories = _.fil
+    let query = knex.from('c_blog')
+      .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
+      .leftJoin('c_publication', 'c_publication.ID', 'c_blog.PUBLICATION')
+      .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
+      .leftJoin('c_blog_category', function () {
+        this
+          .on('c_blog_category.BLOG_ID', 'c_blog.ID')
+         // .onIn('c_blog_category.CATEGORY_ID',[userId])
+      })
+
+      .leftJoin('c_user_followed_blog', function () {
+        this
+          .on('c_blog.ID', 'c_user_followed_blog.BLOG_ID')
+          .onIn('c_user_followed_blog.USER_ID',[userId])
+      })
+
+      .leftJoin('c_user_followed_categories', function () {
+        this
+          .on('c_blog_category.CATEGORY_ID', 'c_user_followed_categories.CATEGORY_ID')
+          .onIn('c_user_followed_categories.USER_ID',[userId])
+      })
+      .leftJoin('c_user_followed_publication', function () {
+        this
+          .on('c_publication.ID', 'c_user_followed_publication.PUBLICATION_ID')
+          .onIn('c_user_followed_publication.USER_ID',[userId])
+      })
+      .leftJoin('c_user_followed_authors', function () {
+        this
+          .on('c_user.ID', 'c_user_followed_authors.AUTHOR_ID')
+          .onIn('c_user_followed_authors.AUTHOR_ID',[userId])
+      })
+      .where({'c_blog.AUTHOR_BY':blogDetails.AUTHOR_BY,'c_blog.STATUS':'PUBLISHED'});
+
+    let data = await query.select(
+      'c_blog.ID',
+      'c_blog.TITLE',
+      'c_blog.DESCRIPTION',
+      'c_blog.FEATURE_MEDIA',
+      'c_blog.PUBLICATION',
+      'c_blog.AUTHOR_BY',
+      'c_blog.VIEWS',
+      'c_blog.STATUS',
+      'c_blog.CREATED_AT',
+      'c_blog.UPDATED_AT',
+      'c_blog.ALIAS',
+      'c_blog.FEATURED',
+      'c_blog.TOP',
+      'c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
+      'c_user_followed_blog.ID as BLOGFOLLOWEDSTATUS',
+      'c_user_followed_categories.ID as CATEGORYFOLLOWEDSTATUS',
+      'c_user_followed_publication.ID as PUBLICATIONFOLLOWEDSTATUS',
+      'c_user_followed_authors.ID as AUTHORFOLLOWEDSTATUS',
+      'c_publication.TITLE as PUBLICATION_TITLE',
+      knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
+      knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
+
+    return data;
   }
   catch (e) {
     return e;
