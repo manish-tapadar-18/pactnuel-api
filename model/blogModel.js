@@ -403,7 +403,6 @@ exports.updateViewsCount = async (alias,views) => {
 
 };
 
-
 exports.getDetailById = async (id) => {
   try {
     let query = knex.from('c_blog')
@@ -470,7 +469,7 @@ exports.relatedBlogs = async (req,alias) => {
       })
       .where({'c_blog.AUTHOR_BY':blogDetails.AUTHOR_BY,'c_blog.STATUS':'PUBLISHED'}).orderByRaw('RAND()').limit(5);
 
-    let data = await query.select(
+    let data = await query.distinct(
       'c_blog.ID',
       'c_blog.TITLE',
       'c_blog.DESCRIPTION',
@@ -571,7 +570,7 @@ exports.pickedBlogs = async (req,userId) => {
       .where(function() {this.whereIn('c_blog.PUBLICATION_ID',publication).orWhere('c_blog.AUTHOR_BY','IN',author).orWhere('c_blog_category.CATEGORY_ID','IN',categories)})
       .orderByRaw('RAND()').limit(5);
 
-    let data = await query.select(
+    let data = await query.distinct(
       'c_blog.ID',
       'c_blog.TITLE',
       'c_blog.DESCRIPTION',
@@ -603,4 +602,77 @@ exports.pickedBlogs = async (req,userId) => {
 
 
 };
+
+exports.searchBlogs = async (req,searchText) => {
+  try {
+    let userId = 0;
+    if(req.hasOwnProperty('mwValue')){
+      userId = req.mwValue.auth.ID;
+    }
+    let query = knex.from('c_blog')
+      .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
+      .leftJoin('c_publication', 'c_publication.ID', 'c_blog.PUBLICATION')
+      .leftJoin('c_blog_tag', 'c_blog_tag.BLOG_ID', 'c_blog.ID')
+      .leftJoin('c_blog_category', function () {
+        this
+          .on('c_blog_category.BLOG_ID', 'c_blog.ID')
+      })
+
+      .leftJoin('c_user_followed_blog', function () {
+        this
+          .on('c_blog.ID', 'c_user_followed_blog.BLOG_ID')
+          .onIn('c_user_followed_blog.USER_ID',[userId])
+      })
+
+      .leftJoin('c_user_followed_categories', function () {
+        this
+          .on('c_blog_category.CATEGORY_ID', 'c_user_followed_categories.CATEGORY_ID')
+          .onIn('c_user_followed_categories.USER_ID',[userId])
+      })
+      .leftJoin('c_user_followed_publication', function () {
+        this
+          .on('c_publication.ID', 'c_user_followed_publication.PUBLICATION_ID')
+          .onIn('c_user_followed_publication.USER_ID',[userId])
+      })
+      .leftJoin('c_user_followed_authors', function () {
+        this
+          .on('c_user.ID', 'c_user_followed_authors.AUTHOR_ID')
+          .onIn('c_user_followed_authors.AUTHOR_ID',[userId])
+      })
+      .where({'c_blog.STATUS':'PUBLISHED'})
+      .where(function() {this.where('c_blog.TITLE','LIKE','%'+searchText+'%').orWhere('c_blog.DESCRIPTION','LIKE','%'+searchText+'%')}).limit(5);
+
+    let data = await query.distinct(
+      'c_blog.ID',
+      'c_blog.TITLE',
+      'c_blog.DESCRIPTION',
+      'c_blog.FEATURE_MEDIA',
+      'c_blog.PUBLICATION',
+      'c_blog.AUTHOR_BY',
+      'c_blog.VIEWS',
+      'c_blog.STATUS',
+      'c_blog.CREATED_AT',
+      'c_blog.UPDATED_AT',
+      'c_blog.ALIAS',
+      'c_blog.FEATURED',
+      'c_blog.TOP',
+      'c_user.EMAIL','c_user.NAME','c_user.LAST_NAME',
+      'c_user_followed_blog.ID as BLOGFOLLOWEDSTATUS',
+      'c_user_followed_categories.ID as CATEGORYFOLLOWEDSTATUS',
+      'c_user_followed_publication.ID as PUBLICATIONFOLLOWEDSTATUS',
+      'c_user_followed_authors.ID as AUTHORFOLLOWEDSTATUS',
+      'c_publication.TITLE as PUBLICATION_TITLE',
+      knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_tag inner join c_tags ct on c_blog_tag.TAG_ID = ct.ID where c_blog_tag.BLOG_ID=c_blog.ID) as TAGS"),
+      knex.raw("(select CONCAT('[',GROUP_CONCAT('{\"text\":\"',ct.NAME,'\",\"id\":\"',ct.ID,'\"}'),']') from c_blog_category inner join c_category ct on c_blog_category.CATEGORY_ID = ct.ID where c_blog_category.BLOG_ID=c_blog.ID) as CATEGORIES"))
+
+    return data;
+  }
+  catch (e) {
+    return e;
+  }
+
+
+
+};
+
 

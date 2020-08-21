@@ -278,6 +278,26 @@ blog.relatedBlogs = async (req,res) => {
   }
 
 };
+blog.searchBlogs = async (req,res) => {
+  try {
+    if (!req.params.searchText) {
+      res.status(400);
+      res.end();
+      return;
+    }
+    let data = await blogModel.searchBlogs(req,req.params.searchText);
+    if (data != null) {
+      res.status(200).json(helpers.response("200", "success", "Fetch Successful", data));
+    }
+    else {
+      res.status(200).json(helpers.response("200", "error", "Fetch is not possible!"));
+    }
+  }
+  catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong."));
+  }
+
+};
 
 blog.pickedBlogs = async (req,res) => {
   try {
