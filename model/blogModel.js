@@ -435,7 +435,7 @@ exports.relatedBlogs = async (req,alias) => {
     let blogDetails = await blogModel.getDetail(req,alias);
     //get category Id
     let categories = JSON.parse(blogDetails.CATEGORIES);
-    categories = _.fil
+    categories = categories.map(a => a.id);
     let query = knex.from('c_blog')
       .innerJoin('c_user', 'c_blog.AUTHOR_BY', 'c_user.ID')
       .leftJoin('c_publication', 'c_publication.ID', 'c_blog.PUBLICATION')
@@ -443,7 +443,7 @@ exports.relatedBlogs = async (req,alias) => {
       .leftJoin('c_blog_category', function () {
         this
           .on('c_blog_category.BLOG_ID', 'c_blog.ID')
-         // .onIn('c_blog_category.CATEGORY_ID',[userId])
+          .onIn('c_blog_category.CATEGORY_ID',[categories])
       })
 
       .leftJoin('c_user_followed_blog', function () {
@@ -467,7 +467,7 @@ exports.relatedBlogs = async (req,alias) => {
           .on('c_user.ID', 'c_user_followed_authors.AUTHOR_ID')
           .onIn('c_user_followed_authors.AUTHOR_ID',[userId])
       })
-      .where({'c_blog.AUTHOR_BY':blogDetails.AUTHOR_BY,'c_blog.STATUS':'PUBLISHED'});
+      .where({'c_blog.AUTHOR_BY':blogDetails.AUTHOR_BY,'c_blog.STATUS':'PUBLISHED'}).orderByRaw('RAND()').limit(5);
 
     let data = await query.select(
       'c_blog.ID',
