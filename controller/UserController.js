@@ -306,6 +306,36 @@ user.getAllUsers = async (req,res) => {
 
 };
 
+user.updateUser = async (req,res) => {
+  try{
+    let payload = req.body;
+    let firstName = typeof (payload.FIRST_NAME) === "string" && payload.FIRST_NAME.trim().length > 0? payload.FIRST_NAME : false;
+    let lastName = typeof (payload.LAST_NAME) === "string" && payload.LAST_NAME.trim().length > 0? payload.LAST_NAME : false;
+    let password = typeof (payload.PASSWORD) === "string" && payload.PASSWORD.trim().length > 0 ? payload.PASSWORD : false;
+    let email = typeof (payload.EMAIL) === "string" && payload.EMAIL.trim().length > 0 ? payload.EMAIL : false;
+    let id = typeof (payload.ID) === "string" && payload.ID.trim().length > 0 ? payload.ID : false;
+    let mobile = typeof (payload.MOBILE) === "string" && payload.MOBILE.trim().length > 0? payload.MOBILE : null;
+    if(id){
+      let a=0;
+      let userDetails = await userModel.getDetailById(id);
+      if(userDetails != null){
+        let result = await userModel.updateUserData(req,req.body);
+        if(result){
+          res.status(200).json(helpers.response("200", "success", "Your profile has been changed successfully!"));
+        }
+      }
+    }
+    else{
+      res.status(200).json(helpers.response("200", "error", "Validation Error!"));
+    }
+  }catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong.",e.message));
+  }
+
+
+};
+
+
 
 //POST AUTH
 /**

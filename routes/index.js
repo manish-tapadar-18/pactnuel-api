@@ -25,6 +25,8 @@ router.route("/accountActivation").post(middleware.checkFormatKey,userController
 router.route("/forgotPasswordResendActivation").post(middleware.checkFormatKey,userController.forgotPasswordResendActivation);
 router.route("/forgotPassword").post(middleware.checkFormatKey,userController.forgotPassword);
 router.route("/getAllUsers").post(middleware.checkFormatKey,userController.getAllUsers);
+router.route("/updateUser").put(middleware.checkUserAuth,userController.updateUser);
+
 
 
 

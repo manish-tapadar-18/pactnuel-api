@@ -73,7 +73,6 @@ exports.createUser = async (context,dataset) => {
 
 };
 
-
 exports.generateAlias = async (email,id=0) => {
   try{
     let aliasArray = email.split('@');
@@ -93,7 +92,6 @@ exports.generateAlias = async (email,id=0) => {
 
 
 };
-
 
 exports.accountActivation = async (email) => {
   try {
@@ -146,6 +144,22 @@ exports.updatePassword = async (email,password) => {
   }
 };
 
+exports.updateUserData = async (context,dataset) => {
+  try {
+    dataset.UPDATED_AT = new Date();
+    await knex('c_user').where({
+      ID: dataset.ID
+    }).update(dataset);
+
+    return 'success'
+  }
+  catch (e) {
+    console.log(e.message);
+    throw e;
+  }
+};
+
+
 exports.getAll = async (req, skip, take, filters) => {
   try {
     let userId = 0;
@@ -174,6 +188,7 @@ exports.getAll = async (req, skip, take, filters) => {
   }
 
 };
+
 exports.getCount = async (filters) => {
   try {
     let query = knex.from('c_user')
@@ -188,6 +203,7 @@ exports.getCount = async (filters) => {
   }
 
 };
+
 exports.generateFilters = function (query, filters) {
   let dateFields = ['CREATED_AT', 'UPDATED_AT'];
   let sort = filters.sortFilter;
@@ -221,7 +237,6 @@ exports.generateFilters = function (query, filters) {
 
 //get UserID wise data
 exports.getDetailById = async (id) => {
-  const dbTransaction = await knex.transaction;
   try{
     let result = await knex.select('*')
       .from('c_user').where({ "ID": id}).limit(1);
