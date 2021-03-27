@@ -335,6 +335,37 @@ user.updateUser = async (req,res) => {
 
 };
 
+user.updatePassword = async (req,res) => {
+  try{
+    let payload = req.body;
+    let password = typeof (payload.PASSWORD) === "string" && payload.PASSWORD.trim().length > 0 ? payload.PASSWORD : false;
+    let currentPassword = typeof (payload.CURRENT_PASSWORD) === "string" && payload.CURRENT_PASSWORD.trim().length > 0 ? payload.CURRENT_PASSWORD : false;
+    let id = typeof (payload.ID) === "string" && payload.ID.trim().length > 0 ? payload.ID : false;
+    if(id){
+      let a=0;
+      let userDetails = await userModel.getDetailById(id);
+      if(userDetails.PASSWORD != md5(currentPassword)){
+        res.status(200).json(helpers.response("200", "error", "Your current password doesn't match!"));
+      }
+      if(userDetails != null){
+        delete req.body.CURRENT_PASSWORD;
+        let result = await userModel.updateUserData(req,req.body);
+        if(result){
+          res.status(200).json(helpers.response("200", "success", "Your password has been changed successfully!"));
+        }
+      }
+    }
+    else{
+      res.status(200).json(helpers.response("200", "error", "Validation Error!"));
+    }
+  }catch (e) {
+    res.status(400).json(helpers.response("400", "error", "Something went wrong.",e.message));
+  }
+
+
+};
+
+
 
 
 //POST AUTH

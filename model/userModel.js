@@ -1,8 +1,8 @@
 import userModel from "./userModel";
 const uniqid = require('uniqid');
 import {knex} from "../config/config";
-import categoryModel from "./categoryModel";
-import publicationModel from "./publicationModel";
+const md5 = require('md5');
+
 
 //get UserID wise data
 exports.getDetail = async (req, email) => {
@@ -146,6 +146,9 @@ exports.updatePassword = async (email,password) => {
 
 exports.updateUserData = async (context,dataset) => {
   try {
+    if(dataset.hasOwnProperty('PASSWORD')){
+      dataset.PASSWORD = md5(dataset.PASSWORD);
+    }
     dataset.UPDATED_AT = new Date();
     await knex('c_user').where({
       ID: dataset.ID
