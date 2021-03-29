@@ -6,7 +6,9 @@ import userModel from '../model/userModel';
 import uniqid from 'uniqid';
 import publicationModel from "../model/publicationModel";
 import publication from "./PublicationController";
+import followModel from "../model/followModel";
 const md5 = require('md5');
+
 
 
 config();
@@ -149,6 +151,20 @@ user.getDetails = async (req,res) => {
       let userDetails = await userModel.getDetail(req, email);
       if(userDetails != null){
         delete userDetails.PASSWORD;
+        //get followers
+
+        //get blog written
+        let totalBCount = await followModel.getFollowedBlogsCount(userDetails.ID);
+        userDetails.TOTAL_BLOG = totalBCount[0].COUNT;
+
+        //get followed publication
+        let totalCount = await followModel.getFollowedPublicationCount(userDetails.ID);
+        userDetails.TOTAL_PUBLICATION = totalCount[0].COUNT;
+
+        //get followed authors
+        let totalACount = await followModel.getFollowedAuthorCount(userDetails.ID);
+        userDetails.TOTAL_AUTHOR = totalACount[0].COUNT;
+
         res.status(200).json(helpers.response("200", "success", "Successful!", userDetails));
       }
       else{
@@ -346,6 +362,7 @@ user.updatePassword = async (req,res) => {
       let userDetails = await userModel.getDetailById(id);
       if(userDetails.PASSWORD != md5(currentPassword)){
         res.status(200).json(helpers.response("200", "error", "Your current password doesn't match!"));
+        return;
       }
       if(userDetails != null){
         delete req.body.CURRENT_PASSWORD;
