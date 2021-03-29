@@ -92,6 +92,9 @@ user.login = async (req,res) => {
           if(userDetails.EMAIL_VERIFY == 0){
             res.status(200).json(helpers.response("200", "error", "Your Email is not verified.",{"action":"resendActivationEmail"}));
           }
+          if(userDetails.STATUS == 0){
+            res.status(200).json(helpers.response("200", "error", "Your Profile is not active."));
+          }
           else if(userDetails.PASSWORD.toUpperCase() == (md5(password)).toUpperCase()){
             let rowsData = {};
             rowsData.ID = userDetails.ID;
@@ -329,6 +332,7 @@ user.updateUser = async (req,res) => {
     let lastName = typeof (payload.LAST_NAME) === "string" && payload.LAST_NAME.trim().length > 0? payload.LAST_NAME : false;
     let password = typeof (payload.PASSWORD) === "string" && payload.PASSWORD.trim().length > 0 ? payload.PASSWORD : false;
     let email = typeof (payload.EMAIL) === "string" && payload.EMAIL.trim().length > 0 ? payload.EMAIL : false;
+    let status = typeof (payload.STATUS) === "string" && payload.STATUS.trim().length > 0 ? payload.STATUS : false;
     let id = typeof (payload.ID) === "string" && payload.ID.trim().length > 0 ? payload.ID : false;
     let mobile = typeof (payload.MOBILE) === "string" && payload.MOBILE.trim().length > 0? payload.MOBILE : null;
     if(id){
